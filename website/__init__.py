@@ -19,4 +19,11 @@ def create_app():
     # Initialize Firestore
     db = firestore.client()
 
+    from .views import views
+    from .auth import auth
+
+    app.register_blueprint(views, url_prefix='/')
+    #prefix can be changed to e.g /auth/ for different route
+    app.register_blueprint(auth, url_prefix='/')
+
     return app
