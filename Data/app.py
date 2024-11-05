@@ -62,4 +62,4 @@ def predict():
     return jsonify({"prediction": fruit_name, "confidence": f"{confidence:.2f}%"})
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, port=5002)
