@@ -13,7 +13,7 @@ def create_app():
     app.config['SECRET_KEY'] = 'database'
 
     # Firebase setup with credentials file
-    cred = credentials.Certificate(r"C:\Users\Axel\School-Repositories\firebase-private-key\firebase-private-key.json")
+    cred = credentials.Certificate("firebase-private-key.json")
     firebase_admin.initialize_app(cred)
 
     # Initialize Firestore
