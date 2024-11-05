@@ -51,7 +51,7 @@ def index():
         </div>
     </body>
     </html>
-    ''')
+    ''')    
 
 # Prediction route with confidence score and a "Back" button
 @app.route('/predict', methods=['POST'])
