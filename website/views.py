@@ -2,8 +2,6 @@
 from flask import Blueprint, render_template, request, jsonify
 from .models import *
 from .firebase import *
-from . import db  # Import the Firestore client from __init__.py
-
 
 views = Blueprint('views', __name__)
 

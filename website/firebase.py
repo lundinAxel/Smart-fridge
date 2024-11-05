@@ -19,6 +19,7 @@ def upload_calorie_data(calorie_data):
         print("Calorie data initialization complete.")
     except Exception as e:
         print(f"Error uploading calorie data to Firebase: {e}")
+        
 
 def initialize_user_totals():
     try:
@@ -32,6 +33,7 @@ def initialize_user_totals():
         print("Initialized user totals to zero.")
     except Exception as e:
         print(f"Error initializing user totals in Firebase: {e}")
+    
 
 def update_fruit_weight_in_db(fruit_name, new_weight):
         try:
