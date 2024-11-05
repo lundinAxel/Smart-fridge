@@ -4,10 +4,16 @@ from io import BytesIO
 import numpy as np
 import json
 
-print("looking for model", "data/fruit_classifier_model.h5")
-model = load_model("data/fruit_classifier_model.h5")
-with open("data/label_dict.json", "r") as f:
-    label_dict = json.load(f)
+try:
+    model = load_model("data/fruit_classifier_model.h5")
+    with open("data/label_dict.json", "r") as f:
+        label_dict = json.load(f)
+    with open("data/calorie_data.json", "r") as f:
+        calorie_data = json.load(f)
+    print("Model and data files loaded successfully.")
+except Exception as e:
+    print(f"Error loading model or data files: {e}")
+    raise RuntimeError("Failed to load model or data files") from e
 
 def preprocess_image(image):
     img = load_img(BytesIO(image.read()), target_size=(100, 100))

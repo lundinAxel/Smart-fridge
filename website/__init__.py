@@ -12,9 +12,17 @@ def create_app():
     app = Flask(__name__)
     app.config['SECRET_KEY'] = 'database'
 
-    # Firebase setup with credentials file
-    cred = credentials.Certificate(r"C:\Users\Axel\School-Repositories\firebase-private-key\firebase-private-key.json")
-    firebase_admin.initialize_app(cred)
+    if not firebase_admin._apps:  # Only initialize Firebase once
+        try:
+            cred_path = r"C:\Users\Axel\School-Repositories\firebase-private-key\firebase-private-key.json"
+            print(f"Attempting to initialize Firebase with credentials file: {cred_path}")
+            
+            cred = credentials.Certificate(cred_path)
+            firebase_admin.initialize_app(cred)
+            print("Firebase initialized successfully.")
+        except Exception as e:
+            print(f"Error initializing Firebase: {e}")
+            return app
 
     # Initialize Firestore
     db = firestore.client()
