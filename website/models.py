@@ -5,10 +5,10 @@ import numpy as np
 import json
 
 try:
-    model = load_model("data/fruit_classifier_model.h5")
-    with open("data/label_dict.json", "r") as f:
+    model = load_model("Data/fruit_classifier_model.h5")
+    with open("Data/label_dict.json", "r") as f:
         label_dict = json.load(f)
-    with open("data/calorie_data.json", "r") as f:
+    with open("Data/calorie_data.json", "r") as f:
         calorie_data = json.load(f)
     print("Model and data files loaded successfully.")
 except Exception as e:
