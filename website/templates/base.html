@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Fruit Recognition</title>
+            <style>
+                body { font-family: Arial, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+                .container { text-align: center; }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <h1>Upload an Image and Enter Weight to Identify the Fruit</h1>
+                <form action="/predict" method="post" enctype="multipart/form-data">
+                    <input type="file" name="file" accept="image/*" required><br><br>
+                    <input type="number" name="weight" placeholder="Enter weight in grams" required><br><br>
+                    <button type="submit">Upload and Predict</button>
+                </form>
+            </div>
+        </body>
+        </html>
