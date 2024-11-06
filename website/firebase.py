@@ -1,25 +1,6 @@
 from . import db  # Import the Firestore client from __init__.py
 
 # Function to upload calorie data to Firestore
-def upload_calorie_data(calorie_data):
-    try:
-        calorie_collection = db.collection("calorie_data")
-        
-        # Delete existing data
-        docs = calorie_collection.stream()
-        for doc in docs:
-            calorie_collection.document(doc.id).delete()
-        
-        # Upload new data
-        for item in calorie_data:
-            fruit_name = item["name"].lower()
-            calorie_collection.document(fruit_name).set(item)
-            print(f"Uploaded calorie data for {fruit_name}")
-        
-        print("Calorie data initialization complete.")
-    except Exception as e:
-        print(f"Error uploading calorie data to Firebase: {e}")
-        
 
 def initialize_user_totals():
     try:
@@ -51,10 +32,10 @@ def update_fruit_weight_in_db(fruit_name, new_weight):
                 fat = (data["fat"] / 100) * weight_diff
 
                 # Calculate total nutrition based on new weight in fridge
-                total_calories = (data["calories_per_100g"] / 100) * new_weight
-                total_protein = (data["protein"] / 100) * new_weight
-                total_carbs = (data["carbohydrates"] / 100) * new_weight
-                total_fat = (data["fat"] / 100) * new_weight
+                total_calories =+ (data["calories_per_100g"] / 100) * weight_diff
+                total_protein =+ (data["protein"] / 100) * weight_diff
+                total_carbs =+ (data["carbohydrates"] / 100) * weight_diff
+                total_fat =+ (data["fat"] / 100) * weight_diff
 
                 # Update the weight in the fridge
                 doc_ref.update({"weight_in_fridge": new_weight})

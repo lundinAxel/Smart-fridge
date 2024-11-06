@@ -1,11 +1,11 @@
-#Anything the user can navigate to, except authentication
 from flask import Blueprint, render_template, request, jsonify
 from .models import *
 from .firebase import *
+from . import db  # Import the Firestore client
 
 views = Blueprint('views', __name__)
 
-#defines route for the home page
+# defines route for the home page
 @views.route('/') 
 def home():
     return render_template("base.html")
@@ -38,7 +38,19 @@ def predict():
     if not nutrition_info:
         return jsonify({"error": f"Nutritional data for {fruit_name} not available"}), 400
 
-    # Render the prediction result in predict.html
+    # Fetch updated total nutrition values from Firestore
+    try:
+        user_doc_ref = db.collection("user").document("totals")
+        doc = user_doc_ref.get()
+        if doc.exists:
+            totals = doc.to_dict()
+        else:
+            totals = {"total_calories": 0, "total_protein": 0, "total_carbohydrates": 0, "total_fat": 0}
+    except Exception as e:
+        print(f"Error fetching user totals from Firebase: {e}")
+        totals = {"total_calories": 0, "total_protein": 0, "total_carbohydrates": 0, "total_fat": 0}
+
+    # Render the prediction result in predict.html with updated totals from Firestore
     return render_template(
         "predict.html",
         fruit_name=fruit_name,
@@ -50,8 +62,8 @@ def predict():
         protein=f"{nutrition_info['protein']:.2f}",
         carbs=f"{nutrition_info['carbohydrates']:.2f}",
         fat=f"{nutrition_info['fat']:.2f}",
-        total_calories=f"{nutrition_info['total_calories']:.2f}",
-        total_protein=f"{nutrition_info['total_protein']:.2f}",
-        total_carbohydrates=f"{nutrition_info['total_carbohydrates']:.2f}",
-        total_fat=f"{nutrition_info['total_fat']:.2f}"
+        total_calories=f"{totals['total_calories']:.2f}",
+        total_protein=f"{totals['total_protein']:.2f}",
+        total_carbohydrates=f"{totals['total_carbohydrates']:.2f}",
+        total_fat=f"{totals['total_fat']:.2f}"
     )

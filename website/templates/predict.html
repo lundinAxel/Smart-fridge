@@ -1,36 +1,36 @@
 <!DOCTYPE html>
-        <html lang="en">
-        <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Prediction Result</title>
-            <style>
-                body { font-family: Arial, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-                .container { text-align: center; max-width: 400px; }
-                .totals { margin-top: 20px; padding-top: 10px; border-top: 2px solid #ccc; }
-            </style>
-        </head>
-        <body>
-            <div class="container">
-                <h2>Prediction Result</h2>
-                <p><strong>Fruit:</strong> {{ fruit_name }}</p>
-                <p><strong>Confidence:</strong> {{ confidence }}%</p>
-                <p><strong>Old Weight:</strong> {{ old_weight }} grams</p>
-                <p><strong>New Weight:</strong> {{ new_weight }} grams</p>
-                <p><strong>Weight Difference:</strong> {{ weight_diff }} grams</p>
-                <p><strong>Calories Removed:</strong> {{ calories }} kcal</p>
-                <p><strong>Protein Removed:</strong> {{ protein }} grams</p>
-                <p><strong>Carbs Removed:</strong> {{ carbs }} grams</p>
-                <p><strong>Fat Removed:</strong> {{ fat }} grams</p>
-                <div class="totals">
-                    <h3>Total Nutrition for "Aleksander consumed" </h3>
-                    <p><strong>Total Calories:</strong> {{ total_calories }} kcal</p>
-                    <p><strong>Total Protein:</strong> {{ total_protein }} grams</p>
-                    <p><strong>Total Carbohydrates:</strong> {{ total_carbohydrates }} grams</p>
-                    <p><strong>Total Fat:</strong> {{ total_fat }} grams</p>
-                </div>
-                <br>
-                <a href="/" style="text-decoration: none; color: blue;">Back to Upload</a>
-            </div>
-        </body>
-        </html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prediction Result</title>
+    <style>
+        body { font-family: Arial, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .container { text-align: center; max-width: 400px; }
+        .totals { margin-top: 20px; padding-top: 10px; border-top: 2px solid #ccc; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Prediction Result</h2>
+        <p><strong>Fruit:</strong> {{ fruit_name }}</p>
+        <p><strong>Confidence:</strong> {{ confidence }}%</p>
+        <p><strong>Old Weight:</strong> {{ old_weight }} grams</p>
+        <p><strong>New Weight:</strong> {{ new_weight }} grams</p>
+        <p><strong>Weight Difference:</strong> {{ weight_diff }} grams</p>
+        <p><strong>Calories Removed:</strong> {{ calories }} kcal</p>
+        <p><strong>Protein Removed:</strong> {{ protein }} grams</p>
+        <p><strong>Carbs Removed:</strong> {{ carbs }} grams</p>
+        <p><strong>Fat Removed:</strong> {{ fat }} grams</p>
+        <div class="totals">
+            <h3>Total Nutrition for "Aleksander consumed"</h3>
+            <p><strong>Total Calories:</strong> {{ total_calories }} kcal</p>
+            <p><strong>Total Protein:</strong> {{ total_protein }} grams</p>
+            <p><strong>Total Carbohydrates:</strong> {{ total_carbohydrates }} grams</p>
+            <p><strong>Total Fat:</strong> {{ total_fat }} grams</p>
+        </div>
+        <br>
+        <a href="/" style="text-decoration: none; color: blue;">Back to Upload</a>
+    </div>
+</body>
+</html>
