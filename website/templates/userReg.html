@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - FreshLife</title>
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+    <style>
+        /* Basic styling */
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background: linear-gradient(to bottom, #0d1b2a, #8e9cb0);
+        }
+        .phone-frame {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 330px;
+            height: 550px;
+            border-radius: 30px;
+            border: 3px solid #000;
+            background-color: #000;
+            box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.5);
+            position: relative;
+        }
+        .screen {
+            width: 96%;
+            height: 90%;
+            background-color: #ffffff;
+            border-radius: 25px;
+            border: 3px solid #000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 40px;
+            position: relative;
+        }
+        .header {
+            font-family: 'Pacifico', cursive;
+            font-size: 24px;
+            color: #000;
+            margin-bottom: 20px;
+        }
+        .input-field {
+            padding: 10px;
+            width: 80%;
+            margin: 10px 0;
+            background-color: #f0f0f0;
+            border: 1px solid #cccccc;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        .button {
+            width: 80%;
+            padding: 15px;
+            background-color: #0abf53;
+            color: #ffffff;
+            border: none;
+            border-radius: 5px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: background-color 0.3s;
+        }
+        .button:hover {
+            background-color: #099846;
+        }
+    </style>
+</head>
+<body>
+    <div class="phone-frame">
+        <div class="screen">
+            <div class="header">FreshLife</div>
+            <input type="text" id="username" placeholder="Username" class="input-field">
+            <input type="password" id="password" placeholder="Password" class="input-field">
+            <input type="password" id="password-repeat" placeholder="Repeat Password" class="input-field">
+            <button class="button" onclick="goToCreateUser()">Create Account</button>
+            <div id="message"></div>
+        </div>
+    </div>
+
+    <script>
+        function goToCreateUser() {
+            const password = document.getElementById('password').value;
+            const passwordRepeat = document.getElementById('password-repeat').value;
+
+            if (password !== passwordRepeat) {
+                document.getElementById('message').textContent = "Passwords do not match.";
+                return;
+            }
+
+            // Redirect to create user details page
+            window.location.href = "/createUser";
+        }
+    </script>
+</body>
+</html>

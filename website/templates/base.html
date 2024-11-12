@@ -1,22 +1,205 @@
 <!DOCTYPE html>
-        <html lang="en">
-        <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Fruit Recognition</title>
-            <style>
-                body { font-family: Arial, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-                .container { text-align: center; }
-            </style>
-        </head>
-        <body>
-            <div class="container">
-                <h1>Upload an Image and Enter Weight to Identify the Fruit</h1>
-                <form action="/predict" method="post" enctype="multipart/form-data">
-                    <input type="file" name="file" accept="image/*" required><br><br>
-                    <input type="number" name="weight" placeholder="Enter weight in grams" required><br><br>
-                    <button type="submit">Upload and Predict</button>
-                </form>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FreshLife</title>
+    <!-- Import Pacifico font from Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+    <style>
+        /* Dark blue gradient background */
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background: linear-gradient(to bottom, #0d1b2a, #8e9cb0);
+        }
+
+        /* Outer phone frame */
+        .phone-frame {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 330px;
+            height: 550px;
+            border-radius: 30px;
+            border: 3px solid #000; /* Black outer border */
+            background-color: #000; /* Black background for the outer frame */
+            box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.5);
+            position: relative;
+        }
+
+        /* Inner screen area */
+        .screen {
+            width: 96%;
+            height: 90%;
+            background-color: #ffffff;
+            border-radius: 25px;
+            border: 3px solid #000; /* Black inner border */
+            box-shadow: inset 0px 0px 10px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 40px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Camera cutout at the top center inside the screen */
+        .camera-cutout {
+            position: absolute;
+            top: 10px;
+            width: 80px;
+            height: 20px;
+            background-color: #000;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+        }
+
+        /* Small white circle (microphone) on the left */
+        .microphone {
+            width: 5px;
+            height: 5px;
+            background-color: #fff;
+            border-radius: 50%;
+        }
+
+        /* Large white circle with inner black circle (camera) in the center */
+        .camera {
+            width: 10px;
+            height: 10px;
+            background-color: #fff;
+            border-radius: 50%;
+            position: relative;
+        }
+
+        .camera::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 5px;
+            height: 5px;
+            background-color: #000;
+            border-radius: 50%;
+        }
+
+        /* Small white circle on the right */
+        .right-circle {
+            width: 5px;
+            height: 5px;
+            background-color: #fff;
+            border-radius: 50%;
+        }
+
+        /* Login button at the top right inside the screen */
+        .login-button {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            color: #000;
+            text-decoration: none;
+            font-weight: bold;
+            border: 1px solid #000;
+            padding: 5px 10px;
+            border-radius: 5px;
+            background-color: #ffffff;
+            transition: background-color 0.3s;
+        }
+
+        .login-button:hover {
+            background-color: #d1d1d1;
+        }
+
+        /* Logo styling */
+        .logo {
+            font-family: 'Pacifico', cursive; /* Apply Pacifico font */
+            font-size: 28px;
+            color: #000; /* Black color */
+            margin-bottom: 20px;
+        }
+
+        /* Form styling */
+        form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            width: 80%;
+            margin-bottom: auto; /* Push form elements above the button */
+        }
+
+        input[type="file"], input[type="number"] {
+            padding: 10px;
+            width: 100%;
+            background-color: #f0f0f0;
+            border: 1px solid #cccccc;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        input[type="file"]::file-selector-button {
+            background-color: #cccccc;
+            color: #000;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        /* Upload button at the bottom */
+        .upload-button {
+            width: 80%;
+            padding: 15px;
+            background-color: #0abf53;
+            color: #ffffff;
+            border: none;
+            border-radius: 5px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: auto; /* Push button to the bottom */
+            margin-bottom: 10px; /* Add 10px distance from the bottom */
+            transition: background-color 0.3s;
+        }
+
+        .upload-button:hover {
+            background-color: #099846;
+        }
+    </style>
+</head>
+<body>
+    <div class="phone-frame">
+        <!-- Inner screen content -->
+        <div class="screen">
+            <!-- Camera cutout in the center -->
+            <div class="camera-cutout">
+                <div class="microphone"></div>
+                <div class="camera"></div>
+                <div class="right-circle"></div>
             </div>
-        </body>
-        </html>
+
+            <!-- Login Button -->
+            <a href="/log out" class="login-button">Log out</a>
+
+            <!-- Logo Title -->
+            <div class="logo">FreshLife</div>
+
+            <!-- Form for file upload and weight entry -->
+            <form id="uploadForm" action="/predict" method="post" enctype="multipart/form-data">
+                <input type="file" name="file" accept="image/*" required><br>
+                <input type="number" name="weight" placeholder="Enter weight in grams" required><br>
+            </form>
+
+            <!-- Upload Button at the bottom -->
+            <button type="submit" form="uploadForm" class="upload-button">Upload</button>
+        </div>
+    </div>
+</body>
+</html>

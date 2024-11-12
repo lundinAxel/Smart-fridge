@@ -1,19 +1,50 @@
-from flask import Blueprint, render_template, request, jsonify
+from flask import Blueprint, render_template, request, redirect, url_for, jsonify
 from .models import *
 from .firebase import *
 from . import db  # Import the Firestore client
 
 views = Blueprint('views', __name__)
 
-# defines route for the home page
-@views.route('/') 
+# Root route redirects to login by default
+@views.route('/')
 def home():
+    return redirect(url_for('views.login'))
+
+# Route for the login page
+@views.route('/login')
+def login():
+    return render_template("login.html")
+
+# Route to handle login button click
+@views.route('/login', methods=['POST'])
+def handle_login():
+    # Here you would implement your login validation logic
+    # If login is successful, redirect to the base (home) page
+    return redirect(url_for('views.base'))
+
+# Route for the base page after login
+@views.route('/base')
+def base():
     return render_template("base.html")
 
-@views.route('/test') 
-def test_page():
-    return render_template("predict.html")
+# Route for the user registration page (first step)
+@views.route('/userReg')
+def user_registration():
+    return render_template("userReg.html")
 
+# Route for the create user page (second step after user registration)
+@views.route('/createUser')
+def create_user():
+    return render_template("createUser.html")
+
+# Route to handle create user button click in userReg
+@views.route('/createUser', methods=['POST'])
+def handle_create_user():
+    # Logic to handle the creation of a new user
+    # Redirect to the base page after creating the user
+    return redirect(url_for('views.base'))
+
+# Predict route
 @views.route('/predict', methods=['POST'])
 def predict():
     if 'file' not in request.files or 'weight' not in request.form:
@@ -50,7 +81,13 @@ def predict():
         print(f"Error fetching user totals from Firebase: {e}")
         totals = {"total_calories": 0, "total_protein": 0, "total_carbohydrates": 0, "total_fat": 0}
 
-    # Render the prediction result in predict.html with updated totals from Firestore
+    # Calculate total percentages
+    calorie_percentage = (totals['total_calories'] / 2000) * 100
+    protein_percentage = (totals['total_protein'] / 150) * 100
+    carbs_percentage = (totals['total_carbohydrates'] / 200) * 100
+    fat_percentage = (totals['total_fat'] / 50) * 100
+
+    # Render the prediction result in predict.html with updated totals and percentages
     return render_template(
         "predict.html",
         fruit_name=fruit_name,
@@ -58,12 +95,12 @@ def predict():
         old_weight=nutrition_info["old_weight"],
         new_weight=new_weight,
         weight_diff=new_weight - nutrition_info["old_weight"],
-        calories=f"{nutrition_info['calories']:.2f}",
-        protein=f"{nutrition_info['protein']:.2f}",
-        carbs=f"{nutrition_info['carbohydrates']:.2f}",
-        fat=f"{nutrition_info['fat']:.2f}",
-        total_calories=f"{totals['total_calories']:.2f}",
-        total_protein=f"{totals['total_protein']:.2f}",
-        total_carbohydrates=f"{totals['total_carbohydrates']:.2f}",
-        total_fat=f"{totals['total_fat']:.2f}"
+        total_calories=totals['total_calories'],
+        total_protein=totals['total_protein'],
+        total_carbohydrates=totals['total_carbohydrates'],
+        total_fat=totals['total_fat'],
+        calorie_percentage=calorie_percentage,
+        protein_percentage=protein_percentage,
+        carbs_percentage=carbs_percentage,
+        fat_percentage=fat_percentage
     )
