@@ -104,14 +104,36 @@ def handle_create_user():
 def predict():
     global calorie_goal, protein_goal, carbs_goal, fat_goal  # Declare global variables
 
+    if 'file' not in request.files or 'weight' not in request.form:
+        return jsonify({"error": "File or weight not provided"}), 400
+
+    file = request.files['file']
+    new_weight = float(request.form['weight'])  # New weight in grams
+    img = preprocess_image(file)
+
+    # Make a prediction
+    try:
+        prediction = model.predict(img)[0]
+        predicted_class = np.argmax(prediction)
+        confidence = prediction[predicted_class] * 100
+        fruit_name = label_dict.get(str(predicted_class), "Unknown")
+    except Exception as e:
+        print(f"Error in prediction process: {e}")
+        return jsonify({"error": "Prediction failed"}), 500
+
+    # Retrieve and update nutritional info for the predicted fruit
+    nutrition_info = update_fruit_weight_in_db(fruit_name, new_weight)
+    if not nutrition_info:
+        return jsonify({"error": f"Nutritional data for {fruit_name} not available"}), 400
+
     # Fetch the user's goals from Firebase
     try:
         user_doc_ref = db.collection("user").document("AleksanderJ")
         user_doc = user_doc_ref.get()
         if user_doc.exists:
             user_data = user_doc.to_dict()
-        else:
-            return jsonify({"error": f"No data found for user {"AleksanderJ"}"}), 404
+        #else:
+            # return jsonify({"error": f"No data found for user {"AleksanderJ"}"}), 404
 
         # Get the goal values
         calorie_goal = user_data.get('calorie_goal', 2000)  # Default 2000

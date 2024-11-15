@@ -120,149 +120,23 @@
         <!-- Add Date Picker -->
         <form id="dateForm" style="margin-bottom: 15px;">
             <label for="selected_date">Select Date:</label>
-            <input type="date" id="selected_date" name="selected_date" required>
+            <input type="date" id="selected_date" onclick="fetchDateData(selectDate)" name="selected_date" required>
         </form>
 
         <!-- Nutrition Chart -->
         <div class="chart-container">
-            <canvas id="nutritionChart" width="300" height="200"></canvas>
+            <canvas id="nutritionChart" width="300" height="200"
+                data-calorie-goal="{{ calorie_goal }}"
+                data-carbs-goal="{{ carbs_goal }}"
+                data-protein-goal="{{ protein_goal }}"
+                data-fat-goal="{{ fat_goal }}">
+            </canvas>
         </div>
     </div>
 </div>
-
-<script>
-    // Set the default value of the date picker to today's date
-    window.onload = function () {
-        const today = new Date().toISOString().split('T')[0];
-        const dateInput = document.getElementById('selected_date');
-        dateInput.value = today;
-
-        // Trigger the fetch for today's data on page load with hardcoded username "AleksanderJ"
-        fetchDateData(today, "AleksanderJ");
-    };
-
-    // Function to fetch data for the selected date
-    function fetchDateData(selectedDate, username = "AleksanderJ") {
-        if (selectedDate && username) {
-            fetch('/fetch_date', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: `selected_date=${selectedDate}&username=${username}`,
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.error) {
-                    console.error(data.error);
-                } else {
-                    // Update the chart with new data
-                    updateChart(data);
-                }
-            })
-            .catch(error => {
-                console.error('Error fetching data:', error);
-            });
-        }
-    }
-
-    // Event listener for date changes
-    document.getElementById('selected_date').addEventListener('change', function () {
-        fetchDateData(this.value);
-    });
-
-    // Initialize the chart
-    const ctx = document.getElementById('nutritionChart').getContext('2d');
-    const nutritionChart = new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: ['Calories', 'Carbohydrates', 'Protein', 'Fat'],
-            datasets: [
-                {
-                    label: 'Total Nutrition Value (%)',
-                    data: [0, 0, 0, 0], // Default values
-                    backgroundColor: [
-                        'rgba(255, 99, 132, 0.2)',
-                        'rgba(54, 162, 235, 0.2)',
-                        'rgba(75, 192, 192, 0.2)',
-                        'rgba(153, 102, 255, 0.2)'
-                    ],
-                    borderColor: [
-                        'rgba(255, 99, 132, 1)',
-                        'rgba(54, 162, 235, 1)',
-                        'rgba(75, 192, 192, 1)',
-                        'rgba(153, 102, 255, 1)'
-                    ],
-                    borderWidth: 1
-                }
-            ]
-        },
-        options: {
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    max: 120,
-                    title: {
-                        display: true,
-                        text: 'Percentage (%)'
-                    }
-                },
-                x: {
-                    title: {
-                        display: true,
-                        text: 'Nutritional Components'
-                    }
-                }
-            },
-            plugins: {
-                tooltip: {
-    callbacks: {
-        label: function (tooltipItem) {
-            let percentage = tooltipItem.raw.toFixed(1); // Rounded to one decimal place
-            let actualValue = tooltipItem.chart.data.datasets[0].actualValues[tooltipItem.dataIndex].toFixed(2); // Actual value
-            let maxValue = [
-                {{ calorie_goal }},
-                {{ carbs_goal }},
-                {{ protein_goal }},
-                {{ fat_goal }}
-            ][tooltipItem.dataIndex]; // Goal value
-
-            // Format tooltip with percentage and actual/goal
-            return [
-                `Percentage: ${percentage}%`, // Percentage on the first line
-                `Actual/Goal: ${actualValue}/${maxValue}` // Actual/Max on the second line
-            ];
-        }
-    }
-}
-
-
-            }
-        }
-    });
-
-    // Function to update the chart
-    function updateChart(data) {
-    // Update the chart with percentage data
-    nutritionChart.data.datasets[0].data = [
-        data.calorie_percentage,
-        data.carbs_percentage,
-        data.protein_percentage,
-        data.fat_percentage
-    ];
-
-    // Attach actual values to the dataset for tooltip use
-    nutritionChart.data.datasets[0].actualValues = [
-        data.total_calories,
-        data.total_carbohydrates,
-        data.total_protein,
-        data.total_fat
-    ];
-
-    nutritionChart.update();
-}
-
-</script>
-
+    <script src="https://www.gstatic.com/firebasejs/10.4.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.4.0/firebase-auth-compat.js"></script>
+    <script src="/static/js/createUser.js"></script>
+    <script src="/static/js/prediction.js" defer></script>
 </body>
 </html>
