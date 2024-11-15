@@ -1,91 +1,141 @@
+from datetime import datetime, timedelta
 from . import db  # Import the Firestore client from __init__.py
 
 # Function to upload calorie data to Firestore
 
 def initialize_user_totals():
     try:
-        user_doc_ref = db.collection("user").document("totals")
-        user_doc_ref.set({
-            "total_calories": 0,
-            "total_protein": 0,
-            "total_carbohydrates": 0,
-            "total_fat": 0
+        today_date = datetime.now().strftime('%Y-%m-%d')
+        totals_doc_ref = db.collection("user").document(today_date)
+        totals_doc_ref.set({
+            "total_calories": 0
         })
-        print("Initialized user totals to zero.")
+        print("Initialized user totals to zero for today's date.")
     except Exception as e:
         print(f"Error initializing user totals in Firebase: {e}")
-    
+
+
+from datetime import datetime
 
 def update_fruit_weight_in_db(fruit_name, new_weight):
-        try:
-            doc_ref = db.collection("calorie_data").document(fruit_name.lower())
-            doc = doc_ref.get()
-            if doc.exists:
-                data = doc.to_dict()
-                old_weight = data.get("weight_in_fridge", 0)
-                weight_diff = old_weight - new_weight
-                
-                # Calculate nutrition values for weight_diff per 100g
-                calories = (data["calories_per_100g"] / 100) * weight_diff
-                protein = (data["protein"] / 100) * weight_diff
-                carbs = (data["carbohydrates"] / 100) * weight_diff
-                fat = (data["fat"] / 100) * weight_diff
+    try:
+        # Get today's date in YYYY-MM-DD format
+        today_date = datetime.now().strftime('%Y-%m-%d')
 
-                # Calculate total nutrition based on new weight in fridge
-                total_calories =+ (data["calories_per_100g"] / 100) * weight_diff
-                total_protein =+ (data["protein"] / 100) * weight_diff
-                total_carbs =+ (data["carbohydrates"] / 100) * weight_diff
-                total_fat =+ (data["fat"] / 100) * weight_diff
+        # Get the document reference for today's date
+        totals_doc_ref = db.collection("user").document(today_date)
+        fruit_doc_ref = db.collection("calorie_data").document(fruit_name.lower())
 
-                # Update the weight in the fridge
-                doc_ref.update({"weight_in_fridge": new_weight})
-
-                # Update user totals
-                update_user_totals(calories, protein, carbs, fat)
-
-                print(f"Updated {fruit_name} in fridge from {old_weight}g to {new_weight}g.")
-                return {
-                    "old_weight": old_weight,
-                    "new_weight": new_weight,
-                    "calories": calories,
-                    "protein": protein,
-                    "carbohydrates": carbs,
-                    "fat": fat,
-                    "total_calories": total_calories,
-                    "total_protein": total_protein,
-                    "total_carbohydrates": total_carbs,
-                    "total_fat": total_fat
-                }
-            else:
-                print(f"Fruit {fruit_name} not found in database.")
-                return None
-        except Exception as e:
-            print(f"Error updating fruit weight in Firebase: {e}")
+        # Fetch fruit data
+        fruit_doc = fruit_doc_ref.get()
+        if not fruit_doc.exists:
+            print(f"Fruit {fruit_name} not found in database.")
             return None
 
-# Function to update user totals
-def update_user_totals(calories, protein, carbs, fat):
-    try:
-        user_doc_ref = db.collection("user").document("totals")
-        doc = user_doc_ref.get()
-        if doc.exists:
-            current_totals = doc.to_dict()
-            new_totals = {
-                "total_calories": current_totals["total_calories"] + calories,
-                "total_protein": current_totals["total_protein"] + protein,
-                "total_carbohydrates": current_totals["total_carbohydrates"] + carbs,
-                "total_fat": current_totals["total_fat"] + fat
-            }
-            user_doc_ref.set(new_totals)
+        fruit_data = fruit_doc.to_dict()
+        old_weight = fruit_data.get("weight_in_fridge", 0)
+        weight_diff = old_weight -new_weight   # Positive if weight is added, negative if removed
+
+        # Calculate nutrition values for weight_diff per 100g
+        calories = (fruit_data["calories_per_100g"] / 100) * weight_diff
+        protein = (fruit_data["protein"] / 100) * weight_diff
+        carbs = (fruit_data["carbohydrates"] / 100) * weight_diff
+        fat = (fruit_data["fat"] / 100) * weight_diff
+
+        # Update the fruit weight in the fridge
+        fruit_doc_ref.update({"weight_in_fridge": new_weight})
+
+        # Update totals in Firestore
+        totals_doc = totals_doc_ref.get()
+        if totals_doc.exists:
+            totals = totals_doc.to_dict()
+            totals_doc_ref.update({
+                "total_calories": totals.get("total_calories", 0) + calories,
+                "total_protein": totals.get("total_protein", 0) + protein,
+                "total_carbohydrates": totals.get("total_carbohydrates", 0) + carbs,
+                "total_fat": totals.get("total_fat", 0) + fat
+            })
         else:
-            # Initialize if missing
-            user_doc_ref.set({
+            # If the totals document doesn't exist, create it with initial values
+            totals_doc_ref.set({
                 "total_calories": calories,
                 "total_protein": protein,
                 "total_carbohydrates": carbs,
                 "total_fat": fat
             })
-    except Exception as e:
-        print(f"Error updating user totals in Firebase: {e}")
 
-        
+        print(f"Updated totals for {today_date}: Calories: {calories}, Protein: {protein}, Carbs: {carbs}, Fat: {fat}")
+        return {
+            "old_weight": old_weight,
+            "new_weight": new_weight,
+            "calories": calories,
+            "protein": protein,
+            "carbohydrates": carbs,
+            "fat": fat
+        }
+
+    except Exception as e:
+        print(f"Error updating fruit weight in Firebase: {e}")
+        return None
+
+
+# Function to update daily totals
+
+def update_daily_totals(calories):
+    try:
+        # Get today's date in YYYY-MM-DD format
+        today_date = datetime.now().strftime('%Y-%m-%d')
+
+        # Reference the document with today's date
+        totals_doc_ref = db.collection("user").document(today_date)
+
+        # Fetch existing data for today or initialize
+        doc = totals_doc_ref.get()
+        if doc.exists():
+            current_totals = doc.to_dict()
+            new_total_calories = current_totals.get("total_calories", 0) + calories
+            totals_doc_ref.update({"total_calories": new_total_calories})
+            print(f"Updated total calories for {today_date} to {new_total_calories}.")
+        else:
+            # Create a new document for today if it doesn't exist
+            totals_doc_ref.set({"total_calories": calories})
+            print(f"Created new entry for {today_date} with total calories {calories}.")
+
+    except Exception as e:
+        print(f"Error updating daily totals in Firebase: {e}")
+
+# Function to fetch daily totals by date
+def fetch_daily_totals(date):
+    try:
+        totals_doc_ref = db.collection("user").document(date)
+        doc = totals_doc_ref.get()
+        if doc.exists():
+            return doc.to_dict()
+        else:
+            print(f"No data found for date: {date}")
+            return None
+    except Exception as e:
+        print(f"Error fetching daily totals from Firebase: {e}")
+        return None
+
+
+def fetch_daily_totals(date):
+    try:
+        totals_doc_ref = db.collection("user").document(date)
+        doc = totals_doc_ref.get()
+        if doc.exists():
+            return doc.to_dict()
+        else:
+            print(f"No data found for date: {date}")
+            return {"total_calories": 0, "total_protein": 0, "total_carbohydrates": 0, "total_fat": 0}
+    except Exception as e:
+        print(f"Error fetching daily totals from Firebase: {e}")
+        return {"error": "Error fetching data"}
+
+def store_user_goals(user_id, goals_data):
+    try:
+        user_ref = db.collection("user").document("AleksanderJ")
+        user_ref.set(goals_data)
+        print(f"User goals for {user_id} saved successfully!")
+    except Exception as e:
+        print(f"Error saving user goals in Firebase: {e}")
