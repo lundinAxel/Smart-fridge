@@ -23,10 +23,16 @@ window.login = function() {
 
     auth.signInWithEmailAndPassword(email, password)
         .then((userCredential) => {
-            alert("Login successful!");
+            const user = userCredential.user; // Get the user object
+            const uid = user.uid; // Fetch the UID
+            console.log("Logged-in user UID:", uid);
+            alert("Login successful! Your UID: " + uid);
+
+            // Redirect to the base page
             window.location.href = "/base";
         })
         .catch((error) => {
+            console.error("Error during login:", error);
             alert("Error: " + error.message);
         });
 };
@@ -48,6 +54,10 @@ window.createAccount = function() {
 
     auth.createUserWithEmailAndPassword(email, password)
         .then((userCredential) => {
+            const user = userCredential.user; // Get the user object
+            const uid = user.uid; // Fetch the UID
+            console.log("Logged-in user UID:", uid);
+            alert("Login successful! Your UID: " + uid);
             console.log("User registered successfully:", userCredential.user);
             alert("User registered successfully!");
             window.location.href = "/createUser";
