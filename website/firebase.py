@@ -134,7 +134,7 @@ def fetch_daily_totals(date):
 
 def store_user_goals(user_id, goals_data):
     try:
-        user_ref = db.collection("user").document("AleksanderJ")
+        user_ref = db.collection("user").document(user_id)
         user_ref.set(goals_data)
         print(f"User goals for {user_id} saved successfully!")
     except Exception as e:

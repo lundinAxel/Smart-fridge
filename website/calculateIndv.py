@@ -1,6 +1,9 @@
 from math import ceil
 
 # Define constants for activity multipliers and macronutrient ratios
+from math import ceil
+
+# Define constants for activity multipliers and macronutrient ratios
 ACTIVITY_MULTIPLIERS = {
     "none": 1.2,
     "1-2 times/week": 1.375,
@@ -25,12 +28,23 @@ def calculate_bmr(gender, age, height_cm, weight_kg):
 def calculate_tdee(bmr, activity_level):
     return bmr * ACTIVITY_MULTIPLIERS.get(activity_level, 1.2)
 
-# Calculate calorie and macronutrient goals based on goal type (deficit, maintenance, bulk)
+# Calculate calorie and macronutrient goals based on goal type
 def calculate_macros(goal_type, tdee, weight_kg):
+    # Adjust TDEE based on the goal type
+    if goal_type == "deficit":
+        calorie_goal = tdee - 500  # 500 kcal less for fat loss
+    elif goal_type == "bulk":
+        calorie_goal = tdee + 500  # 500 kcal more for muscle gain
+    else:  # maintenance
+        calorie_goal = tdee
+
+    # Calculate macronutrients
     protein_g = MACRO_RATIOS[goal_type]["protein"] * weight_kg
-    fat_g = (MACRO_RATIOS[goal_type]["fat_percentage"] * tdee) / 9
-    carbs_g = (tdee - (protein_g * 4 + fat_g * 9)) / 4
-    return ceil(tdee), ceil(protein_g), ceil(fat_g), ceil(carbs_g)
+    fat_g = (MACRO_RATIOS[goal_type]["fat_percentage"] * calorie_goal) / 9
+    carbs_g = (calorie_goal - (protein_g * 4 + fat_g * 9)) / 4
+
+    return ceil(calorie_goal), ceil(protein_g), ceil(fat_g), ceil(carbs_g)
+
 
 # Store user information and calculated data in the database
 def store_user_data(db, user_data):
