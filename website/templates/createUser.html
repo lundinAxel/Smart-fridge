@@ -132,20 +132,5 @@
                 </form>
         </div>
     </div>
-
-    <script>
-        // Select option and highlight the button
-        function selectOption(type, value) {
-            document.getElementById(type).value = value;
-
-            // Clear previous selection
-            document.querySelectorAll(`#${type}-group .select-button`).forEach(button => {
-                button.classList.remove('selected');
-            });
-
-            // Highlight the selected button
-            event.target.classList.add('selected');
-        }
-    </script>
 </body>
 </html>
