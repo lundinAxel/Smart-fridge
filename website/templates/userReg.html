@@ -77,27 +77,15 @@
     <div class="phone-frame">
         <div class="screen">
             <div class="header">FreshLife</div>
-            <input type="text" id="username" placeholder="Username" class="input-field">
+            <input type="text" id="email" placeholder="email" class="input-field">
             <input type="password" id="password" placeholder="Password" class="input-field">
             <input type="password" id="password-repeat" placeholder="Repeat Password" class="input-field">
-            <button class="button" onclick="goToCreateUser()">Create Account</button>
+            <button class="button" onclick="createAccount()">Create Account</button>
             <div id="message"></div>
         </div>
     </div>
-
-    <script>
-        function goToCreateUser() {
-            const password = document.getElementById('password').value;
-            const passwordRepeat = document.getElementById('password-repeat').value;
-
-            if (password !== passwordRepeat) {
-                document.getElementById('message').textContent = "Passwords do not match.";
-                return;
-            }
-
-            // Redirect to create user details page
-            window.location.href = "/createUser";
-        }
-    </script>
+    <script src="https://www.gstatic.com/firebasejs/10.4.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.4.0/firebase-auth-compat.js"></script>
+    <script src="/static/js/auth.js"></script>
 </body>
 </html>

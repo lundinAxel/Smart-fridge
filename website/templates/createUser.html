@@ -97,74 +97,40 @@
         <div class="screen">
             <div class="header">User Details</div>
 
-            <!-- User Details Fields -->
-            <input type="number" id="age" placeholder="Age" class="input-field">
-            <input type="number" id="height" placeholder="Height (cm)" class="input-field">
-            <input type="number" id="weight" placeholder="Weight (kg)" class="input-field">
-            
-            <!-- Gender Selection -->
-            <div style="width: 80%; text-align: left; margin-top: 10px;">Gender</div>
-            <div class="button-group" id="gender-group">
-                <button class="select-button" onclick="selectOption('gender', 'male')">Male</button>
-                <button class="select-button" onclick="selectOption('gender', 'female')">Female</button>
-            </div>
-
-            <!-- Goal Selection -->
-            <div style="width: 80%; text-align: left; margin-top: 10px;">Goal</div>
-            <div class="button-group" id="goal-group">
-                <button class="select-button" onclick="selectOption('goal', 'deficit')">Deficit</button>
-                <button class="select-button" onclick="selectOption('goal', 'maintenance')">Maintenance</button>
-                <button class="select-button" onclick="selectOption('goal', 'bulk')">Bulk</button>
-            </div>
-
-            <!-- Activity Level Selection -->
-            <div style="width: 80%; text-align: left; margin-top: 10px;">Activity Level</div>
-            <div class="button-group" id="activity-group">
-                <button class="select-button" onclick="selectOption('activity', 'none')">None</button>
-                <button class="select-button" onclick="selectOption('activity', '1-2')">1-2</button>
-                <button class="select-button" onclick="selectOption('activity', '3-4')">3-4</button>
-                <button class="select-button" onclick="selectOption('activity', '4-7')">4-7</button>
-            </div>
-
-            <!-- Complete Registration Button -->
-            <button class="button" onclick="submitUserDetails()">Complete Registration</button>
+            <!-- Form for User Details -->
+            <form id="userForm" method="POST" action="/createUser" style="display: flex; flex-direction: column; align-items: center;">
+                <form id="userForm" method="POST" action="/createUser" style="display: flex; flex-direction: column; align-items: center;">
+                    <input type="number" name="age" id="age" placeholder="Age" class="input-field" required>
+                    <input type="number" name="height" id="height" placeholder="Height (cm)" class="input-field" required>
+                    <input type="number" name="weight" id="weight" placeholder="Weight (kg)" class="input-field" required>
+                    
+                    <div style="width: 80%; text-align: left; margin-top: 10px;">Gender</div>
+                    <div class="button-group" id="gender-group">
+                        <input type="hidden" name="gender" id="gender" required>
+                        <button type="button" class="select-button" onclick="selectOption('gender', 'male')">Male</button>
+                        <button type="button" class="select-button" onclick="selectOption('gender', 'female')">Female</button>
+                    </div>
+                
+                    <div style="width: 80%; text-align: left; margin-top: 10px;">Goal</div>
+                    <div class="button-group" id="goal-group">
+                        <input type="hidden" name="goal" id="goal" required>
+                        <button type="button" class="select-button" onclick="selectOption('goal', 'deficit')">Deficit</button>
+                        <button type="button" class="select-button" onclick="selectOption('goal', 'maintenance')">Maintenance</button>
+                        <button type="button" class="select-button" onclick="selectOption('goal', 'bulk')">Bulk</button>
+                    </div>
+                
+                    <div style="width: 80%; text-align: left; margin-top: 10px;">Activity Level</div>
+                    <div class="button-group" id="activity-group">
+                        <input type="hidden" name="activity" id="activity" required>
+                        <button type="button" class="select-button" onclick="selectOption('activity', 'none')">None</button>
+                        <button type="button" class="select-button" onclick="selectOption('activity', '1-2 times/week')">1-2</button>
+                        <button type="button" class="select-button" onclick="selectOption('activity', '3-4 times/week')">3-4</button>
+                        <button type="button" class="select-button" onclick="selectOption('activity', '4-7 times/week')">4-7</button>
+                    </div>
+                
+                    <button type="submit" class="button">Complete Registration</button>
+                </form>
         </div>
     </div>
-
-    <script>
-        const selections = {
-            gender: null,
-            goal: null,
-            activity: null
-        };
-
-        // Select option and highlight the button
-        function selectOption(type, value) {
-            selections[type] = value;
-
-            // Clear previous selection
-            document.querySelectorAll(`#${type}-group .select-button`).forEach(button => {
-                button.classList.remove('selected');
-            });
-
-            // Highlight the selected button
-            const selectedButton = [...document.querySelectorAll(`#${type}-group .select-button`)].find(btn => btn.textContent.toLowerCase() === value);
-            selectedButton.classList.add('selected');
-        }
-
-        function submitUserDetails() {
-            const age = document.getElementById('age').value;
-            const height = document.getElementById('height').value;
-            const weight = document.getElementById('weight').value;
-
-            if (age && height && weight && selections.gender && selections.goal && selections.activity) {
-                // All fields are filled, proceed with submission
-                alert("User details submitted successfully!");
-                window.location.href = "/base";
-            } else {
-                alert("Please fill in all fields.");
-            }
-        }
-    </script>
 </body>
 </html>
