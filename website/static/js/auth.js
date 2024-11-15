@@ -1,0 +1,60 @@
+// Firebase Configuration
+console.log(firebase ? "Firebase loaded" : "Firebase not loaded");
+
+const firebaseConfig = {
+    apiKey: "AIzaSyA9mMUpDJIh4yPGU4mx_0U4Xqtq4yb2haQ",
+    authDomain: "freshlife-87d9a.firebaseapp.com",
+    projectId: "freshlife-87d9a",
+};
+
+// Initialize Firebase
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+alert("auth.js loaded successfully!");
+
+
+// Function for login
+window.login = function() {
+    console.log("Login function called");
+    alert("Login function called");
+
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
+
+    auth.signInWithEmailAndPassword(email, password)
+        .then((userCredential) => {
+            alert("Login successful!");
+            window.location.href = "/base";
+        })
+        .catch((error) => {
+            alert("Error: " + error.message);
+        });
+};
+
+// Function for user registration
+window.createAccount = function() {
+    console.log("Register function called");
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
+    const passwordRepeat = document.getElementById('password-repeat').value;
+
+    if (password !== passwordRepeat) {
+        console.log("Passwords do not match");
+        document.getElementById('message').textContent = "Passwords do not match.";
+        return;
+    }
+
+    console.log("Attempting to register user with email:", email);
+
+    auth.createUserWithEmailAndPassword(email, password)
+        .then((userCredential) => {
+            console.log("User registered successfully:", userCredential.user);
+            alert("User registered successfully!");
+            window.location.href = "/createUser";
+        })
+        .catch((error) => {
+            console.error("Error during registration:", error);
+            alert("Error: " + error.message);
+        });
+};
+
