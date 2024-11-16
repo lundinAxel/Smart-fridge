@@ -52,10 +52,17 @@ window.login = function() {
         });
 };
 
+function autoLogin(){
+    
+}
+
+
 function logout() {
     auth.signOut().then(() => {
         alert("User logged out successfully.");
+        sessionStorage.clear();
         window.location.href = "/login";
+        window.location.reload();
     }).catch((error) => {
         console.error("Error logging out:", error);
         alert("Failed to log out: " + error.message);
@@ -86,11 +93,33 @@ window.createAccount = function() {
             alert("Login successful! Your UID: " + uid);
             console.log("User registered successfully:", userCredential.user);
             alert("User registered successfully!");
-            window.location.href = "/createUser";
+            return auth.signInWithEmailAndPassword(email, password);
+        })
+        .then((userCredential) => {
+            const user = userCredential.user;
+            const uid = user.uid;
+            console.log("User auto-logged in successfully, UID:", uid);
+
+            // Send the UID to the backend to store it in the session
+            return fetch('/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ uid: uid })
+            });
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                console.log("UID stored in session successfully.");
+                window.location.href = "/createUser";
+            } else {
+                alert("Error: " + data.error);
+            }
         })
         .catch((error) => {
             console.error("Error during registration:", error);
             alert("Error: " + error.message);
         });
 };
-

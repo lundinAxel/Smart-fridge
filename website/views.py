@@ -67,7 +67,7 @@ def handle_create_user():
         user_id = session.get('user_id')  # Fetch the user ID if logged in
         if not user_id:
             # If not logged in, generate a new user ID (for example, during new user registration)
-            user_id = f"user_{datetime.now().strftime('%Y%m%d%H%M%S')}"
+            return jsonify({"error": "User not logged in"}), 401
 
         # Collect data from the form
         age = int(request.form.get('age'))
