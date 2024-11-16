@@ -22,8 +22,22 @@ def login():
     return render_template("login.html")
 
 # Route to handle login button click
+from flask import request, jsonify, session
+
 @views.route('/login', methods=['POST'])
 def handle_login():
+    # Get UID from the frontend request
+    data = request.get_json()
+    uid = data.get('uid')
+
+    if not uid:
+        return jsonify({"error": "User not logged in"}), 401
+
+    # Store the UID in the session for later use
+    session['user_id'] = uid
+
+    return jsonify({"success": True, "message": "Login successful", "uid": uid})
+
     # Here you would implement your login validation logic
     # If login is successful, redirect to the base (home) page
     return redirect(url_for('views.base'))
@@ -49,6 +63,12 @@ from .calculateIndv import calculate_bmr, calculate_tdee, calculate_macros  # Im
 @views.route('/createUser', methods=['POST'])
 def handle_create_user():
     try:
+        # Get the user ID from the session
+        user_id = session.get('user_id')  # Fetch the user ID if logged in
+        if not user_id:
+            # If not logged in, generate a new user ID (for example, during new user registration)
+            user_id = f"user_{datetime.now().strftime('%Y%m%d%H%M%S')}"
+
         # Collect data from the form
         age = int(request.form.get('age'))
         height = int(request.form.get('height'))
@@ -69,8 +89,8 @@ def handle_create_user():
         calorie_goal, protein_g, fat_g, carbs_g = calculate_macros(goal, tdee, weight)
 
         # Prepare goals data
-        user_id = f"user_{datetime.now().strftime('%Y%m%d%H%M%S')}"  # Unique user ID
         goals_data = {
+            "user_id": user_id,
             "gender": gender,
             "age": age,
             "height_cm": height,
@@ -85,11 +105,11 @@ def handle_create_user():
             "carbs_g": carbs_g
         }
 
-        # Save to Firebase
+        # Store user goals in Firebase using the store_user_goals function
         from .firebase import store_user_goals
         store_user_goals(user_id, goals_data)
 
-        # Redirect to the base page or success page
+        # Redirect to the base page or a success page
         return redirect(url_for('views.base'))
 
     except Exception as e:
@@ -104,8 +124,15 @@ def handle_create_user():
 def predict():
     global calorie_goal, protein_goal, carbs_goal, fat_goal  # Declare global variables
 
+    # Fetch the user ID from the session
+    user_id = session.get('user_id')  # Ensure user_id is stored in the session during login
+    if not user_id:
+        return jsonify({"error": "User not logged in"}), 401
+
     if 'file' not in request.files or 'weight' not in request.form:
         return jsonify({"error": "File or weight not provided"}), 400
+    
+    initialize_user_totals(user_id)
 
     file = request.files['file']
     new_weight = float(request.form['weight'])  # New weight in grams
@@ -122,33 +149,35 @@ def predict():
         return jsonify({"error": "Prediction failed"}), 500
 
     # Retrieve and update nutritional info for the predicted fruit
-    nutrition_info = update_fruit_weight_in_db(fruit_name, new_weight)
+    nutrition_info = update_fruit_weight_in_db(user_id, fruit_name, new_weight)
     if not nutrition_info:
         return jsonify({"error": f"Nutritional data for {fruit_name} not available"}), 400
 
     # Fetch the user's goals from Firebase
     try:
-        user_doc_ref = db.collection("user").document("AleksanderJ")
+        user_doc_ref = db.collection("users").document(user_id).collection("goals").document("goal")
+        print(user_id)
         user_doc = user_doc_ref.get()
+        print(user_doc)
         if user_doc.exists:
             user_data = user_doc.to_dict()
-        #else:
-            # return jsonify({"error": f"No data found for user {"AleksanderJ"}"}), 404
+        else:
+            return jsonify({"error": f"No goals found for user {user_id}"}), 404
 
         # Get the goal values
         calorie_goal = user_data.get('calorie_goal', 2000)  # Default 2000
         carbs_goal = user_data.get('carbs_g', 200)          # Default 200
         protein_goal = user_data.get('protein_g', 150)      # Default 150
         fat_goal = user_data.get('fat_g', 50)               # Default 50
-        print(calorie_goal) 
+        print(calorie_goal)
     except Exception as e:
         print(f"Error fetching user data: {e}")
-        return jsonify({"error": "Failed to fetch user data"}), 500
+        #return jsonify({"error": "Failed to fetch user data"}), 500
 
     # Fetch today's totals
     try:
         today_date = datetime.now().strftime('%Y-%m-%d')
-        totals_doc_ref = db.collection("user").document(today_date)
+        totals_doc_ref = db.collection("users").document(user_id).collection("daily").document(today_date)
         totals_doc = totals_doc_ref.get()
         if totals_doc.exists:
             totals = totals_doc.to_dict()
@@ -187,30 +216,51 @@ def predict():
         fat_goal=fat_goal
     )
 
+
 @views.route('/fetch_date', methods=['POST'])
 def fetch_date():
+    # Fetch the selected date from the request
     selected_date = request.form.get('selected_date')
     if not selected_date:
         return jsonify({"error": "No date selected"}), 400
 
+    # Fetch the user ID from the session
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({"error": "User not logged in"}), 401
+
     try:
-        # Fetch data for the selected date
-        totals_doc_ref = db.collection("user").document(selected_date)
+        # Path to the daily data in the updated database structure
+        totals_doc_ref = db.collection("users").document(user_id).collection("daily").document(selected_date)
         doc = totals_doc_ref.get()
+
         if doc.exists:
             totals = doc.to_dict()
         else:
+            # Default values if no data exists for the selected date
             totals = {"total_calories": 0, "total_protein": 0, "total_carbohydrates": 0, "total_fat": 0}
+
+        # Fetch today's goal values from the user's goals in the database
+        goals_doc_ref = db.collection("users").document(user_id).collection("goals").document("goal")
+        goals_doc = goals_doc_ref.get()
+        if goals_doc.exists:
+            goals = goals_doc.to_dict()
+            calorie_goal = goals.get("calorie_goal", 2000)
+            protein_goal = goals.get("protein_g", 150)
+            carbs_goal = goals.get("carbs_g", 200)
+            fat_goal = goals.get("fat_g", 50)
+        else:
+            return jsonify({"error": "User goals not found"}), 404
 
         # Calculate percentages
         total_calories = totals.get("total_calories", 0)
         total_protein = totals.get("total_protein", 0)
         total_carbohydrates = totals.get("total_carbohydrates", 0)
         total_fat = totals.get("total_fat", 0)
-        calorie_percentage = (totals.get("total_calories", 0) / calorie_goal) * 100
-        protein_percentage = (totals.get("total_protein", 0) / protein_goal) * 100
-        carbs_percentage = (totals.get("total_carbohydrates", 0) / carbs_goal) * 100
-        fat_percentage = (totals.get("total_fat", 0) / fat_goal) * 100
+        calorie_percentage = (total_calories / calorie_goal) * 100
+        protein_percentage = (total_protein / protein_goal) * 100
+        carbs_percentage = (total_carbohydrates / carbs_goal) * 100
+        fat_percentage = (total_fat / fat_goal) * 100
 
         # Return the data as JSON
         return jsonify({
@@ -226,3 +276,4 @@ def fetch_date():
     except Exception as e:
         print(f"Error fetching data for selected date: {e}")
         return jsonify({"error": "Failed to fetch data for the selected date"}), 500
+

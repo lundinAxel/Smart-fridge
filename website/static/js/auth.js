@@ -28,14 +28,40 @@ window.login = function() {
             console.log("Logged-in user UID:", uid);
             alert("Login successful! Your UID: " + uid);
 
-            // Redirect to the base page
-            window.location.href = "/base";
+            // Send UID to the server
+            fetch('/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ uid: uid })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    window.location.href = "/base";
+                } else {
+                    alert("Error: " + data.error);
+                }
+            })
+            .catch(error => console.error("Error sending UID to the server:", error));
         })
         .catch((error) => {
             console.error("Error during login:", error);
             alert("Error: " + error.message);
         });
 };
+
+function logout() {
+    auth.signOut().then(() => {
+        alert("User logged out successfully.");
+        window.location.href = "/login";
+    }).catch((error) => {
+        console.error("Error logging out:", error);
+        alert("Failed to log out: " + error.message);
+    });
+}
+
 
 // Function for user registration
 window.createAccount = function() {

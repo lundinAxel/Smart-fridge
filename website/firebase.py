@@ -3,12 +3,15 @@ from . import db  # Import the Firestore client from __init__.py
 
 # Function to upload calorie data to Firestore
 
-def initialize_user_totals():
+def initialize_user_totals(user_id):
     try:
         today_date = datetime.now().strftime('%Y-%m-%d')
-        totals_doc_ref = db.collection("user").document(today_date)
+        totals_doc_ref = db.collection("users").document(user_id).collection("daily").document(today_date)
         totals_doc_ref.set({
-            "total_calories": 0
+            "total_calories": 0,
+            "total_protein": 0,
+            "total_carbohydrates": 0,
+            "total_fat": 0
         })
         print("Initialized user totals to zero for today's date.")
     except Exception as e:
@@ -17,13 +20,25 @@ def initialize_user_totals():
 
 from datetime import datetime
 
-def update_fruit_weight_in_db(fruit_name, new_weight):
+def store_user_goals(user_id, goals_data):
+    try:
+        # Define the path to store user goals in the database
+        goals_ref = db.collection("users").document(user_id).collection("goals").document("goal")
+
+        # Save the goals data to the specified path
+        goals_ref.set(goals_data)
+
+        print(f"User goals for {user_id} saved successfully!")
+    except Exception as e:
+        print(f"Error saving user goals in Firebase: {e}")
+
+def update_fruit_weight_in_db(user_id, fruit_name, new_weight):
     try:
         # Get today's date in YYYY-MM-DD format
         today_date = datetime.now().strftime('%Y-%m-%d')
 
         # Get the document reference for today's date
-        totals_doc_ref = db.collection("user").document(today_date)
+        totals_doc_ref = db.collection("users").document(user_id).collection("daily").document(today_date)
         fruit_doc_ref = db.collection("calorie_data").document(fruit_name.lower())
 
         # Fetch fruit data
@@ -78,64 +93,33 @@ def update_fruit_weight_in_db(fruit_name, new_weight):
         print(f"Error updating fruit weight in Firebase: {e}")
         return None
 
-
-# Function to update daily totals
-
-def update_daily_totals(calories):
+def fetch_daily_data(user_id, date):
     try:
-        # Get today's date in YYYY-MM-DD format
-        today_date = datetime.now().strftime('%Y-%m-%d')
+        # Path to the daily data
+        daily_data_ref = db.collection("users").document(user_id).collection("daily").document(date)
+        daily_data_doc = daily_data_ref.get()
 
-        # Reference the document with today's date
-        totals_doc_ref = db.collection("user").document(today_date)
-
-        # Fetch existing data for today or initialize
-        doc = totals_doc_ref.get()
-        if doc.exists():
-            current_totals = doc.to_dict()
-            new_total_calories = current_totals.get("total_calories", 0) + calories
-            totals_doc_ref.update({"total_calories": new_total_calories})
-            print(f"Updated total calories for {today_date} to {new_total_calories}.")
+        if daily_data_doc.exists:
+            return daily_data_doc.to_dict()
         else:
-            # Create a new document for today if it doesn't exist
-            totals_doc_ref.set({"total_calories": calories})
-            print(f"Created new entry for {today_date} with total calories {calories}.")
-
-    except Exception as e:
-        print(f"Error updating daily totals in Firebase: {e}")
-
-# Function to fetch daily totals by date
-def fetch_daily_totals(date):
-    try:
-        totals_doc_ref = db.collection("user").document(date)
-        doc = totals_doc_ref.get()
-        if doc.exists():
-            return doc.to_dict()
-        else:
-            print(f"No data found for date: {date}")
+            print(f"No daily data found for user {user_id} on {date}")
             return None
+
     except Exception as e:
-        print(f"Error fetching daily totals from Firebase: {e}")
+        print(f"Error fetching daily data: {e}")
         return None
 
 
-def fetch_daily_totals(date):
+
+def fetch_daily_totals(user_id, date):
     try:
-        totals_doc_ref = db.collection("user").document(date)
+        totals_doc_ref = db.collection("users").document(user_id).collection("daily").document(date)
         doc = totals_doc_ref.get()
-        if doc.exists():
+        if doc.exists:
             return doc.to_dict()
         else:
-            print(f"No data found for date: {date}")
+            print(f"No data found for user {user_id} on date: {date}")
             return {"total_calories": 0, "total_protein": 0, "total_carbohydrates": 0, "total_fat": 0}
     except Exception as e:
         print(f"Error fetching daily totals from Firebase: {e}")
         return {"error": "Error fetching data"}
-
-def store_user_goals(user_id, goals_data):
-    try:
-        user_ref = db.collection("user").document(user_id)
-        user_ref.set(goals_data)
-        print(f"User goals for {user_id} saved successfully!")
-    except Exception as e:
-        print(f"Error saving user goals in Firebase: {e}")
