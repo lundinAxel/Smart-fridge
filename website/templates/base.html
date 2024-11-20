@@ -6,7 +6,6 @@
     <title>FreshLife</title>
     <!-- Import Pacifico font from Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
-    
     <style>
         /* Dark blue gradient background */
         body {
@@ -194,13 +193,32 @@
 
             <!-- Form for file upload and weight entry -->
             <form id="uploadForm" action="/predict" method="post" enctype="multipart/form-data">
-                <input type="file" name="file" accept="image/*" required><br>
+                <input type="file" name="file" accept="image/*,video/*" required><br>
                 <input type="number" name="weight" placeholder="Enter weight in grams" required><br>
             </form>
+            <div id="videoPreviewContainer"></div>
 
             <!-- Upload Button at the bottom -->
             <button type="submit" form="uploadForm" class="upload-button">Upload</button>
         </div>
     </div>
+    <script>
+        document.querySelector('input[type="file"]').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            const previewContainer = document.getElementById('videoPreviewContainer');
+            
+            // Clear previous preview (if any)
+            previewContainer.innerHTML = '';
+    
+            // Check if the file is a video
+            if (file && file.type.startsWith('video')) {
+                const videoPreview = document.createElement('video');
+                videoPreview.src = URL.createObjectURL(file);
+                videoPreview.controls = true;
+                videoPreview.style.width = '100%';
+                previewContainer.appendChild(videoPreview);
+            }
+        });
+    </script>    
 </body>
 </html>

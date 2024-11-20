@@ -1,15 +1,35 @@
 from flask import Blueprint, render_template, request, redirect, url_for, jsonify
 from .models import *
-from .firebase import *
-from . import db  # Import the Firestore client
-from datetime import datetime
+from website.firebase import *
+from . import db  
+import mimetypes
+import subprocess
+import os
+import cv2  
+from firebase import upload_to_firebase 
 
 views = Blueprint('views', __name__)
 
-calorie_goal = 2000  # Default values
-protein_goal = 150
-carbs_goal = 200
-fat_goal = 50
+def trim_video(input_path, output_path, duration=10):
+    command = [
+        'ffmpeg', '-i', input_path, '-t', str(duration),
+        '-c', 'copy', output_path
+    ]
+    subprocess.run(command)
+
+
+def extract_frames(video_path, frame_count=10):
+    video = cv2.VideoCapture(video_path)
+    frames = []
+    success, image = video.read()
+    count = 0
+    while success and count < frame_count:
+        frames.append(image)
+        success, image = video.read()
+        count += 1
+    video.release()
+    return frames
+
 
 # Root route redirects to login by default
 @views.route('/')
@@ -44,74 +64,51 @@ def create_user():
     return render_template("createUser.html")
 
 # Route to handle create user button click in userReg
-from .calculateIndv import calculate_bmr, calculate_tdee, calculate_macros  # Import calculation functions
-
 @views.route('/createUser', methods=['POST'])
 def handle_create_user():
-    try:
-        # Collect data from the form
-        age = int(request.form.get('age'))
-        height = int(request.form.get('height'))
-        weight = float(request.form.get('weight'))
-        gender = request.form.get('gender')
-        goal = request.form.get('goal')
-        activity = request.form.get('activity')
+    # Logic to handle the creation of a new user
+    # Redirect to the base page after creating the user
+    return redirect(url_for('views.base'))
 
-        # Validate inputs
-        if not all([age, height, weight, gender, goal, activity]):
-            return jsonify({"error": "All fields are required"}), 400
-
-        # Calculate user goals
-        from .calculateIndv import calculate_bmr, calculate_tdee, calculate_macros
-
-        bmr = calculate_bmr(gender, age, height, weight)
-        tdee = calculate_tdee(bmr, activity)
-        calorie_goal, protein_g, fat_g, carbs_g = calculate_macros(goal, tdee, weight)
-
-        # Prepare goals data
-        user_id = f"user_{datetime.now().strftime('%Y%m%d%H%M%S')}"  # Unique user ID
-        goals_data = {
-            "gender": gender,
-            "age": age,
-            "height_cm": height,
-            "weight_kg": weight,
-            "activity_level": activity,
-            "goal_type": goal,
-            "bmr": round(bmr, 2),
-            "tdee": round(tdee, 2),
-            "calorie_goal": calorie_goal,
-            "protein_g": protein_g,
-            "fat_g": fat_g,
-            "carbs_g": carbs_g
-        }
-
-        # Save to Firebase
-        from .firebase import store_user_goals
-        store_user_goals(user_id, goals_data)
-
-        # Redirect to the base page or success page
-        return redirect(url_for('views.base'))
-
-    except Exception as e:
-        print(f"Error in handle_create_user: {e}")
-        return jsonify({"error": "Failed to create user"}), 500
-
-
-
-
-# Updated function in views.py
+# Predict route
 @views.route('/predict', methods=['POST'])
 def predict():
-    global calorie_goal, protein_goal, carbs_goal, fat_goal  # Declare global variables
-
     if 'file' not in request.files or 'weight' not in request.form:
         return jsonify({"error": "File or weight not provided"}), 400
 
     file = request.files['file']
     new_weight = float(request.form['weight'])  # New weight in grams
-    img = preprocess_image(file)
+    mime_type, _ = mimetypes.guess_type(file.filename)
 
-    # Make a prediction
+    # Define paths for saving and processing files
+    input_path = f'/tmp/{file.filename}'
+    output_path = f'/tmp/trimmed_{file.filename}'
+
+    # Save the uploaded file temporarily
+    with open(input_path, 'wb+') as destination:
+        for chunk in file.stream:
+            destination.write(chunk)
+
+    # Check if the uploaded file is a video or image
+    if mime_type and mime_type.startswith('video'):
+        # Trim video to 10 seconds
+        try:
+            trim_video(input_path, output_path, duration=10)
+        except Exception as e:
+            print(f"Error trimming video: {e}")
+            return jsonify({"error": "Video processing failed"}), 500
+
+        # Optional: Extract frames from the trimmed video
+        frames = extract_frames(output_path, frame_count=10)
+
+        # Use the first frame as a sample for prediction (adjust as needed)
+        img = preprocess_image(frames[0])
+    elif mime_type and mime_type.startswith('image'):
+        # If the file is an image, proceed with the usual image preprocessing
+        img = preprocess_image(file)
+    else:
+        return jsonify({"error": "Unsupported file type"}), 400
+
     try:
         prediction = model.predict(img)[0]
         predicted_class = np.argmax(prediction)
@@ -126,103 +123,38 @@ def predict():
     if not nutrition_info:
         return jsonify({"error": f"Nutritional data for {fruit_name} not available"}), 400
 
-    # Fetch the user's goals from Firebase
+    # Fetch updated total nutrition values from Firestore
     try:
-        user_doc_ref = db.collection("user").document("AleksanderJ")
-        user_doc = user_doc_ref.get()
-        if user_doc.exists:
-            user_data = user_doc.to_dict()
-        #else:
-            # return jsonify({"error": f"No data found for user {"AleksanderJ"}"}), 404
-
-        # Get the goal values
-        calorie_goal = user_data.get('calorie_goal', 2000)  # Default 2000
-        carbs_goal = user_data.get('carbs_g', 200)          # Default 200
-        protein_goal = user_data.get('protein_g', 150)      # Default 150
-        fat_goal = user_data.get('fat_g', 50)               # Default 50
-        print(calorie_goal) 
-    except Exception as e:
-        print(f"Error fetching user data: {e}")
-        return jsonify({"error": "Failed to fetch user data"}), 500
-
-    # Fetch today's totals
-    try:
-        today_date = datetime.now().strftime('%Y-%m-%d')
-        totals_doc_ref = db.collection("user").document(today_date)
-        totals_doc = totals_doc_ref.get()
-        if totals_doc.exists:
-            totals = totals_doc.to_dict()
-        else:
-            totals = {"total_calories": 0, "total_protein": 0, "total_carbohydrates": 0, "total_fat": 0}
-    except Exception as e:
-        print(f"Error fetching daily totals: {e}")
-        totals = {"total_calories": 0, "total_protein": 0, "total_carbohydrates": 0, "total_fat": 0}
-
-    # Safely fetch today's totals
-    total_calories = totals.get("total_calories", 0)
-    total_protein = totals.get("total_protein", 0)
-    total_carbohydrates = totals.get("total_carbohydrates", 0)
-    total_fat = totals.get("total_fat", 0)
-
-    # Calculate percentages based on the fetched user goals
-    calorie_percentage = (total_calories / calorie_goal) * 100
-    protein_percentage = (total_protein / protein_goal) * 100
-    carbs_percentage = (total_carbohydrates / carbs_goal) * 100
-    fat_percentage = (total_fat / fat_goal) * 100
-
-    # Render the prediction result in predict.html
-    return render_template(
-        "predict.html",
-        total_calories=total_calories,
-        total_protein=total_protein,
-        total_carbohydrates=total_carbohydrates,
-        total_fat=total_fat,
-        calorie_percentage=calorie_percentage,
-        protein_percentage=protein_percentage,
-        carbs_percentage=carbs_percentage,
-        fat_percentage=fat_percentage,
-        calorie_goal=calorie_goal,
-        protein_goal=protein_goal,
-        carbs_goal=carbs_goal,
-        fat_goal=fat_goal
-    )
-
-@views.route('/fetch_date', methods=['POST'])
-def fetch_date():
-    selected_date = request.form.get('selected_date')
-    if not selected_date:
-        return jsonify({"error": "No date selected"}), 400
-
-    try:
-        # Fetch data for the selected date
-        totals_doc_ref = db.collection("user").document(selected_date)
-        doc = totals_doc_ref.get()
+        user_doc_ref = db.collection("user").document("totals")
+        doc = user_doc_ref.get()
         if doc.exists:
             totals = doc.to_dict()
         else:
             totals = {"total_calories": 0, "total_protein": 0, "total_carbohydrates": 0, "total_fat": 0}
-
-        # Calculate percentages
-        total_calories = totals.get("total_calories", 0)
-        total_protein = totals.get("total_protein", 0)
-        total_carbohydrates = totals.get("total_carbohydrates", 0)
-        total_fat = totals.get("total_fat", 0)
-        calorie_percentage = (totals.get("total_calories", 0) / calorie_goal) * 100
-        protein_percentage = (totals.get("total_protein", 0) / protein_goal) * 100
-        carbs_percentage = (totals.get("total_carbohydrates", 0) / carbs_goal) * 100
-        fat_percentage = (totals.get("total_fat", 0) / fat_goal) * 100
-
-        # Return the data as JSON
-        return jsonify({
-            "calorie_percentage": calorie_percentage,
-            "protein_percentage": protein_percentage,
-            "carbs_percentage": carbs_percentage,
-            "fat_percentage": fat_percentage,
-            "total_calories": total_calories,
-            "total_protein": total_protein,
-            "total_carbohydrates": total_carbohydrates,
-            "total_fat": total_fat,
-        })
     except Exception as e:
-        print(f"Error fetching data for selected date: {e}")
-        return jsonify({"error": "Failed to fetch data for the selected date"}), 500
+        print(f"Error fetching user totals from Firebase: {e}")
+        totals = {"total_calories": 0, "total_protein": 0, "total_carbohydrates": 0, "total_fat": 0}
+
+    # Calculate total percentages
+    calorie_percentage = (totals['total_calories'] / 2000) * 100
+    protein_percentage = (totals['total_protein'] / 150) * 100
+    carbs_percentage = (totals['total_carbohydrates'] / 200) * 100
+    fat_percentage = (totals['total_fat'] / 50) * 100
+
+    # Render the prediction result in predict.html with updated totals and percentages
+    return render_template(
+        "predict.html",
+        fruit_name=fruit_name,
+        confidence=f"{confidence:.2f}",
+        old_weight=nutrition_info["old_weight"],
+        new_weight=new_weight,
+        weight_diff=new_weight - nutrition_info["old_weight"],
+        total_calories=totals['total_calories'],
+        total_protein=totals['total_protein'],
+        total_carbohydrates=totals['total_carbohydrates'],
+        total_fat=totals['total_fat'],
+        calorie_percentage=calorie_percentage,
+        protein_percentage=protein_percentage,
+        carbs_percentage=carbs_percentage,
+        fat_percentage=fat_percentage
+    )
