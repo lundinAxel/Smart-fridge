@@ -57,6 +57,10 @@ def user_registration():
 def create_user():
     return render_template("createUser.html")
 
+@views.route('/modifyUser')
+def modify_user():
+    return render_template("modifyUser.html")
+
 # Route to handle create user button click in userReg
 from .calculateIndv import calculate_bmr, calculate_tdee, calculate_macros  # Import calculation functions
 
@@ -67,7 +71,6 @@ def handle_create_user():
         user_id = session.get('user_id')  # Fetch the user ID if logged in
         if not user_id:
             # If not logged in, generate a new user ID (for example, during new user registration)
-            return jsonify({"error": "User not logged in"}), 401
 
         # Collect data from the form
         age = int(request.form.get('age'))
@@ -276,4 +279,77 @@ def fetch_date():
     except Exception as e:
         print(f"Error fetching data for selected date: {e}")
         return jsonify({"error": "Failed to fetch data for the selected date"}), 500
+    
+@views.route('/updateUser', methods=['POST'])
+def update_user():
+    try:
+        # Fetch user_id from session
+        user_id = session.get('user_id')
+        if not user_id:
+            return jsonify({"error": "User not logged in"}), 401
+
+        try:
+            age = int(request.form.get('age'))
+            height = int(request.form.get('height'))
+            weight = float(request.form.get('weight'))
+            goal = request.form.get('goal')
+            activity = request.form.get('activity')
+        except Exception as e:
+            print(f"Error parsing input data: {e}")
+            return jsonify({"error": "Invalid input data"}), 400
+
+        try:
+            # Fetch original data from Firestore
+            original_data = db.collection("users").document(user_id).collection("goals").document("goal").get().to_dict()
+            if not original_data:
+                return jsonify({"error": "Original user data not found"}), 404
+        except Exception as e:
+            print(f"Error fetching original data from Firestore: {e}")
+            return jsonify({"error": "Failed to fetch original user data"}), 500
+
+        try:
+            # Recalculate BMR and macros
+            bmr = calculate_bmr(
+                original_data["gender"],
+                age or original_data["age"],
+                height or original_data["height_cm"],
+                weight or original_data["weight_kg"]
+            )
+            tdee = calculate_tdee(bmr, activity or original_data["activity_level"])
+            calorie_goal, protein_g, fat_g, carbs_g = calculate_macros(
+                goal or original_data["goal_type"],
+                tdee,
+                weight or original_data["weight_kg"]
+            )
+        except Exception as e:
+            print(f"Error recalculating BMR, TDEE, or macros: {e}")
+            return jsonify({"error": "Failed to recalculate user data"}), 500
+
+        try:
+            # Save changes to Firestore without overwriting original goals
+            changes_ref = db.collection("users").document(user_id).collection("changes").document(datetime.now().strftime('%Y-%m-%d'))
+            changes_ref.set({
+                "modified_age": age or original_data["age"],
+                "modified_height": height or original_data["height_cm"],
+                "modified_weight": weight or original_data["weight_kg"],
+                "modified_goal": goal or original_data["goal_type"],
+                "modified_activity": activity or original_data["activity_level"],
+                "calorie_goal": calorie_goal,
+                "protein_g": protein_g,
+                "fat_g": fat_g,
+                "carbs_g": carbs_g,
+                "timestamp": datetime.now().isoformat()
+                
+            })
+        except Exception as e:
+            print(f"Error saving changes to Firestore: {e}")
+            return jsonify({"error": "Failed to save changes"}), 500
+
+        return jsonify({"success": True})
+
+    except Exception as e:
+        print(f"Unexpected error in update_user: {e}")
+        return jsonify({"error": "Failed to update user"}), 500
+
+
 

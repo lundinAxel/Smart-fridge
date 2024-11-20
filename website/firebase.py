@@ -20,7 +20,7 @@ def initialize_user_totals(user_id):
 
 from datetime import datetime
 
-def store_user_goals(user_id, goals_data):
+def store_user_goals(user_id, goals_data, date):
     try:
         # Define the path to store user goals in the database
         goals_ref = db.collection("users").document(user_id).collection("goals").document("goal")

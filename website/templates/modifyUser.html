@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modify User Details - FreshLife</title>
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+    <style>
+        /* Basic styling */
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background: linear-gradient(to bottom, #0d1b2a, #8e9cb0);
+        }
+        .phone-frame {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 330px;
+            height: 550px;
+            border-radius: 30px;
+            border: 3px solid #000;
+            background-color: #000;
+            box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.5);
+            position: relative;
+        }
+        .screen {
+            width: 96%;
+            height: 90%;
+            background-color: #ffffff;
+            border-radius: 25px;
+            border: 3px solid #000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 20px;
+            position: relative;
+        }
+        .header {
+            font-family: 'Pacifico', cursive;
+            font-size: 24px;
+            color: #000;
+            margin-bottom: 10px;
+        }
+        .input-field {
+            padding: 8px;
+            width: 80%;
+            margin: 5px 0;
+            background-color: #f0f0f0;
+            border: 1px solid #cccccc;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        .button-group {
+            display: flex;
+            justify-content: space-between;
+            width: 80%;
+            margin: 5px 0;
+        }
+        .select-button {
+            flex: 1;
+            padding: 8px 0;
+            margin: 2px;
+            background-color: #e0e0e0;
+            color: #333;
+            border: 1px solid #cccccc;
+            border-radius: 5px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background-color 0.3s, color 0.3s;
+            text-align: center;
+        }
+        .select-button.selected {
+            background-color: #0abf53;
+            color: #ffffff;
+        }
+        .button {
+            width: 80%;
+            padding: 12px;
+            background-color: #0abf53;
+            color: #ffffff;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 15px;
+        }
+        .button1 {
+            width: 80%;
+            padding: 12px;
+            background-color: #0abf53;
+            color: #ffffff;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="phone-frame">
+        <div class="screen">
+            <div class="header">User Details</div>
+
+            <!-- Form for User Details -->
+            <form id="userForm" method="POST" action="/updateUser" style="display: flex; flex-direction: column; align-items: center;">
+                <input type="number" name="age" id="age" placeholder="Age" class="input-field" required>
+                <input type="number" name="height" id="height" placeholder="Height (cm)" class="input-field" required>
+                <input type="number" name="weight" id="weight" placeholder="Weight (kg)" class="input-field" required>
+            
+            
+                <div style="width: 80%; text-align: left; margin-top: 10px;">Goal</div>
+                <div class="button-group" id="goal-group">
+                    <input type="hidden" name="goal" id="goal" required>
+                    <button type="button" class="select-button" onclick="selectOption('goal', 'deficit')">Deficit</button>
+                    <button type="button" class="select-button" onclick="selectOption('goal', 'maintenance')">Maintenance</button>
+                    <button type="button" class="select-button" onclick="selectOption('goal', 'bulk')">Bulk</button>
+                </div>
+            
+                <div style="width: 80%; text-align: left; margin-top: 10px;">Activity Level</div>
+                <div class="button-group" id="activity-group">
+                    <input type="hidden" name="activity" id="activity" required>
+                    <button type="button" class="select-button" onclick="selectOption('activity', 'none')">None</button>
+                    <button type="button" class="select-button" onclick="selectOption('activity', '1-2 times/week')">1-2</button>
+                    <button type="button" class="select-button" onclick="selectOption('activity', '3-4 times/week')">3-4</button>
+                    <button type="button" class="select-button" onclick="selectOption('activity', '4-7 times/week')">4-7</button>
+                </div>
+            
+                <button type="submit" class="button">Complete Registration</button>
+                <button type="button" class="button1" onclick="window.location.href='/base'">Return</a>
+            </form>
+        </div>
+    </div>
+    <script src="https://www.gstatic.com/firebasejs/10.4.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.4.0/firebase-auth-compat.js"></script>
+    <script src="/static/js/modifyUser.js"></script>
+</body>
+</html>
