@@ -284,11 +284,11 @@ def fetch_date():
 @views.route('/updateUser', methods=['POST'])
 def update_user():
     try:
-        # Fetch user_id from session
         user_id = session.get('user_id')
         if not user_id:
             return jsonify({"error": "User not logged in"}), 401
 
+        # Parse input data
         try:
             age = int(request.form.get('age'))
             height = int(request.form.get('height'))
@@ -299,8 +299,8 @@ def update_user():
             print(f"Error parsing input data: {e}")
             return jsonify({"error": "Invalid input data"}), 400
 
+        # Fetch original data
         try:
-            # Fetch original data from Firestore
             original_data = db.collection("users").document(user_id).collection("goals").document("goal").get().to_dict()
             if not original_data:
                 return jsonify({"error": "Original user data not found"}), 404
@@ -308,8 +308,9 @@ def update_user():
             print(f"Error fetching original data from Firestore: {e}")
             return jsonify({"error": "Failed to fetch original user data"}), 500
 
+        # Calculate new goals
         try:
-            # Recalculate BMR and macros
+            from .calculateIndv import calculate_bmr, calculate_tdee, calculate_macros
             bmr = calculate_bmr(
                 original_data["gender"],
                 age or original_data["age"],
@@ -322,35 +323,40 @@ def update_user():
                 tdee,
                 weight or original_data["weight_kg"]
             )
+
+            new_goals_data = {
+                "user_id": user_id,
+                "gender": original_data["gender"],
+                "age": age or original_data["age"],
+                "height_cm": height or original_data["height_cm"],
+                "weight_kg": weight or original_data["weight_kg"],
+                "activity_level": activity or original_data["activity_level"],
+                "goal_type": goal or original_data["goal_type"],
+                "bmr": round(bmr, 2),
+                "tdee": round(tdee, 2),
+                "calorie_goal": calorie_goal,
+                "protein_g": protein_g,
+                "fat_g": fat_g,
+                "carbs_g": carbs_g
+            }
         except Exception as e:
             print(f"Error recalculating BMR, TDEE, or macros: {e}")
             return jsonify({"error": "Failed to recalculate user data"}), 500
 
+        # Save both old and new goals
         try:
-            # Save changes to Firestore without overwriting original goals
-            changes_ref = db.collection("users").document(user_id).collection("changes").document(datetime.now().strftime('%Y-%m-%d'))
-            changes_ref.set({
-                "modified_age": age or original_data["age"],
-                "modified_height": height or original_data["height_cm"],
-                "modified_weight": weight or original_data["weight_kg"],
-                "modified_goal": goal or original_data["goal_type"],
-                "modified_activity": activity or original_data["activity_level"],
-                "calorie_goal": calorie_goal,
-                "protein_g": protein_g,
-                "fat_g": fat_g,
-                "carbs_g": carbs_g,
-                "timestamp": datetime.now().isoformat()
-                
-            })
+            from .firebase import store_user_goals
+            store_user_goals(user_id, new_goals_data, original_data)
         except Exception as e:
-            print(f"Error saving changes to Firestore: {e}")
-            return jsonify({"error": "Failed to save changes"}), 500
+            return jsonify({"error": "Failed to save updated user goals"}), 500
 
-        return jsonify({"success": True})
+        return redirect(url_for('views.base'))
 
     except Exception as e:
         print(f"Unexpected error in update_user: {e}")
         return jsonify({"error": "Failed to update user"}), 500
+
+
 
 
 

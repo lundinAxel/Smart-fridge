@@ -10,13 +10,11 @@ const firebaseConfig = {
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
-alert("auth.js loaded successfully!");
 
 
 // Function for login
 window.login = function() {
     console.log("Login function called");
-    alert("Login function called");
 
     const email = document.getElementById("email").value;
     const password = document.getElementById("password").value;
@@ -26,7 +24,6 @@ window.login = function() {
             const user = userCredential.user; // Get the user object
             const uid = user.uid; // Fetch the UID
             console.log("Logged-in user UID:", uid);
-            alert("Login successful! Your UID: " + uid);
 
             // Send UID to the server
             fetch('/login', {
@@ -59,7 +56,6 @@ function autoLogin(){
 
 function logout() {
     auth.signOut().then(() => {
-        alert("User logged out successfully.");
         sessionStorage.clear();
         window.location.href = "/login";
         window.location.reload();
@@ -90,9 +86,7 @@ window.createAccount = function() {
             const user = userCredential.user; // Get the user object
             const uid = user.uid; // Fetch the UID
             console.log("Logged-in user UID:", uid);
-            alert("Login successful! Your UID: " + uid);
             console.log("User registered successfully:", userCredential.user);
-            alert("User registered successfully!");
             return auth.signInWithEmailAndPassword(email, password);
         })
         .then((userCredential) => {
