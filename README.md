@@ -9,16 +9,21 @@ The app integrates with a smart refrigerator connected via Wi-Fi and synced with
 In addition, the app offers personalized user guidance tailored to specific goals, whether it’s maintaining a diet to address nutritional deficiencies, bulking to build muscle, or losing weight. With a focus on individual objectives, users can seamlessly track their progress using detailed charts that display total consumed calories for each day. This allows users to monitor trends, make adjustments to their dietary habits, and update their goals as needed for optimal results.
 
 Datasets
+
 TBD
 
 Methdology
+
 TBD
 
 Evaluation & Analysis
+
 TBD
 
 Related Work
+
 TBD
 
 Conclusion
+
 TBD
