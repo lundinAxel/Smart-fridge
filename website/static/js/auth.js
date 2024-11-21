@@ -10,13 +10,11 @@ const firebaseConfig = {
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
-alert("auth.js loaded successfully!");
 
 
 // Function for login
 window.login = function() {
     console.log("Login function called");
-    alert("Login function called");
 
     const email = document.getElementById("email").value;
     const password = document.getElementById("password").value;
@@ -26,16 +24,47 @@ window.login = function() {
             const user = userCredential.user; // Get the user object
             const uid = user.uid; // Fetch the UID
             console.log("Logged-in user UID:", uid);
-            alert("Login successful! Your UID: " + uid);
 
-            // Redirect to the base page
-            window.location.href = "/base";
+            // Send UID to the server
+            fetch('/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ uid: uid })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    window.location.href = "/base";
+                } else {
+                    alert("Error: " + data.error);
+                }
+            })
+            .catch(error => console.error("Error sending UID to the server:", error));
         })
         .catch((error) => {
             console.error("Error during login:", error);
             alert("Error: " + error.message);
         });
 };
+
+function autoLogin(){
+    
+}
+
+
+function logout() {
+    auth.signOut().then(() => {
+        sessionStorage.clear();
+        window.location.href = "/login";
+        window.location.reload();
+    }).catch((error) => {
+        console.error("Error logging out:", error);
+        alert("Failed to log out: " + error.message);
+    });
+}
+
 
 // Function for user registration
 window.createAccount = function() {
@@ -57,14 +86,34 @@ window.createAccount = function() {
             const user = userCredential.user; // Get the user object
             const uid = user.uid; // Fetch the UID
             console.log("Logged-in user UID:", uid);
-            alert("Login successful! Your UID: " + uid);
             console.log("User registered successfully:", userCredential.user);
-            alert("User registered successfully!");
-            window.location.href = "/createUser";
+            return auth.signInWithEmailAndPassword(email, password);
+        })
+        .then((userCredential) => {
+            const user = userCredential.user;
+            const uid = user.uid;
+            console.log("User auto-logged in successfully, UID:", uid);
+
+            // Send the UID to the backend to store it in the session
+            return fetch('/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ uid: uid })
+            });
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                console.log("UID stored in session successfully.");
+                window.location.href = "/createUser";
+            } else {
+                alert("Error: " + data.error);
+            }
         })
         .catch((error) => {
             console.error("Error during registration:", error);
             alert("Error: " + error.message);
         });
 };
-
