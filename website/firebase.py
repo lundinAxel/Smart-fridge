@@ -20,17 +20,25 @@ def initialize_user_totals(user_id):
 
 from datetime import datetime
 
-def store_user_goals(user_id, goals_data):
+def store_user_goals(user_id, new_goals_data, old_goals_data=None):
     try:
-        # Define the path to store user goals in the database
+        # Define the Firestore references
         goals_ref = db.collection("users").document(user_id).collection("goals").document("goal")
+        
+        # Save new goals data
+        goals_ref.set(new_goals_data)
+        print(f"New goals for user {user_id} saved successfully!")
 
-        # Save the goals data to the specified path
-        goals_ref.set(goals_data)
+        # If old goals data is provided, save it to "old_goals" collection
+        if old_goals_data:
+            old_goals_ref = db.collection("users").document(user_id).collection("old_goals").document(datetime.now().strftime('%Y-%m-%d'))
+            old_goals_ref.set(old_goals_data)
+            print(f"Old goals for user {user_id} saved successfully!")
 
-        print(f"User goals for {user_id} saved successfully!")
     except Exception as e:
         print(f"Error saving user goals in Firebase: {e}")
+        raise
+
 
 def update_fruit_weight_in_db(user_id, fruit_name, new_weight):
     try:
