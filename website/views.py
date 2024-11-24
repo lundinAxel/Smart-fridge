@@ -3,6 +3,12 @@ from .models import *
 from .firebase import *
 from . import db  # Import the Firestore client
 from datetime import datetime
+import os 
+import mimetypes
+import subprocess
+import numpy as np 
+import cv2  
+import time
 
 views = Blueprint('views', __name__)
 
@@ -10,38 +16,38 @@ calorie_goal = 2000  # Default values
 protein_goal = 150
 carbs_goal = 200
 fat_goal = 50
-from website.firebase import *
-from . import db  
-import mimetypes
-import subprocess
-import numpy as np 
-import cv2  
-from .firebase import * 
 #Test
-views = Blueprint('views', __name__)
 
-def mock_predict(image):
-    # Simulate prediction logic
-    probabilities = np.random.rand(10)  # Example probabilities for 10 classes
-    return probabilities
+import os
+import cv2
 
-
-def extract_frames(video_path, interval=1):
+def extract_frames(video_path, interval=1, output_dir="output_frames"):
+    # Create the output directory if it doesn't exist
+    os.makedirs(output_dir, exist_ok=True)
+    
     video = cv2.VideoCapture(video_path)
     fps = int(video.get(cv2.CAP_PROP_FPS))
+    print(f"Frames per second: {fps}")
     frames = []
+    
     count = 0
+    frame_count = 0
 
     while True:
         success, frame = video.read()
         if not success:
             break
-        if count % (fps * interval) == 0:
+        if count % int(fps * interval) == 0:
+            # Save the frame as an image
             frames.append(frame)
+            frame_filename = os.path.join(output_dir, f"{frame_count}.jpg")
+            cv2.imwrite(frame_filename, frame)
+            frame_count += 1
         count += 1
 
     video.release()
-    return frames
+    return frames  # Return the number of saved frames
+
 
 
 # Root route redirects to login by default
@@ -169,8 +175,6 @@ def predict():
     if 'file' not in request.files or 'weight' not in request.form:
         return jsonify({"error": "File or weight not provided"}), 400
 
-    initialize_user_totals(user_id)
-
     file = request.files['file']
     new_weight = float(request.form['weight'])  # New weight in grams
     mime_type = file.content_type
@@ -183,6 +187,7 @@ def predict():
             predicted_class = np.argmax(prediction)
             confidence = prediction[predicted_class] * 100
             fruit_name = label_dict.get(str(predicted_class), "Unknown")
+            print(f"\nBest prediction: {fruit_name} with confidence: {confidence:.2f}%")
         except Exception as e:
             print(f"Error in image prediction process: {e}")
             return jsonify({"error": "Prediction failed"}), 500
@@ -190,23 +195,62 @@ def predict():
     elif mime_type.startswith('video'):
         # Handle video file
         try:
-            video_path = f"/tmp/{file.filename}"
+            # Save the uploaded video
+            video_path = os.path.join("uploads", file.filename)
+            os.makedirs(os.path.dirname(video_path), exist_ok=True)
             file.save(video_path)
+            print(f"Video saved at: {video_path}")
 
-            # Extract frames at 1-second intervals
-            frames = extract_frames(video_path, interval=1)
-            best_prediction = None
+            # Extract frames at 0.5-second intervals
+            frames = extract_frames(video_path, interval=0.5)
+            frame_predictions = []  # To store predictions for each frame
 
-            for frame in frames:
-                prediction = model.predict(frame)[0]
-                max_confidence = max(prediction)
-                print(prediction + " and certainty " + max_confidence)
-                if not best_prediction or max_confidence > max(best_prediction):
-                    best_prediction = prediction
+            # Save and reload frames to ensure consistency
+            processed_frames = []
+            for i, frame in enumerate(frames):
+                # Save frame to disk
+                frame_path = os.path.join("output_frames", f"frame_{i}.jpg")
+                os.makedirs("output_frames", exist_ok=True)
+                cv2.imwrite(frame_path, frame)  # Save in RGB format
 
-            predicted_class = np.argmax(best_prediction)
-            confidence = best_prediction[predicted_class] * 100
-            fruit_name = label_dict.get(str(predicted_class), "Unknown")
+                # Reload saved frame and preprocess it
+                reloaded_frame = load_img(frame_path, target_size=(100, 100))
+                preprocessed_frame = img_to_array(reloaded_frame) / 255.0
+                preprocessed_frame = np.expand_dims(preprocessed_frame, axis=0)  # Add batch dimension
+                processed_frames.append(preprocessed_frame)
+
+                # Predict on the preprocessed frame
+                prediction = model.predict(preprocessed_frame)[0]
+                predicted_class = np.argmax(prediction)
+                confidence = max(prediction) * 100
+                fruit_name = label_dict.get(str(predicted_class), "Unknown")
+                frame_predictions.append((fruit_name, confidence))
+
+                print(f"Frame {i}: Predicted {fruit_name} with confidence {confidence:.2f}%")
+
+            # Combine predictions into a single batch
+            batch = np.vstack(processed_frames)
+            predictions = model.predict(batch)
+
+            # Find the best prediction across all frames
+            best_idx = np.argmax(predictions, axis=1)
+            best_confidences = np.max(predictions, axis=1)
+            best_frame_idx = np.argmax(best_confidences)
+            best_class = best_idx[best_frame_idx]
+            best_confidence = best_confidences[best_frame_idx]
+
+            # Map the best class to a label
+            fruit_name = label_dict.get(str(best_class), "Unknown")
+            confidence = best_confidence * 100
+
+            # Print final best prediction
+            print(f"\nBest prediction: {fruit_name} with confidence: {confidence:.2f}%")
+
+            # Print all frame predictions for debugging
+            print("\nAll frame predictions:")
+            for i, (fruit, conf) in enumerate(frame_predictions):
+                print(f"Frame {i}: Predicted {fruit} with confidence {conf:.2f}%")
+
         except Exception as e:
             print(f"Error in video prediction process: {e}")
             return jsonify({"error": "Video processing failed"}), 500
@@ -229,10 +273,10 @@ def predict():
         user_doc = user_doc_ref.get()
         if user_doc.exists:
             user_data = user_doc.to_dict()
-            calorie_goal = user_data.get('calorie_goal', 2000)  # Default 2000
-            carbs_goal = user_data.get('carbs_g', 200)          # Default 200
-            protein_goal = user_data.get('protein_g', 150)      # Default 150
-            fat_goal = user_data.get('fat_g', 50)               # Default 50
+            calorie_goal = user_data.get('calorie_goal', 2000)
+            carbs_goal = user_data.get('carbs_g', 200)
+            protein_goal = user_data.get('protein_g', 150)
+            fat_goal = user_data.get('fat_g', 50)
         else:
             return jsonify({"error": f"No goals found for user {user_id}"}), 404
     except Exception as e:
@@ -282,6 +326,7 @@ def predict():
         fruit_name=fruit_name,
         confidence=confidence
     )
+
 
 
 @views.route('/fetch_date', methods=['POST'])

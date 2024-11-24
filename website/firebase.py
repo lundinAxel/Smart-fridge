@@ -3,23 +3,6 @@ from . import db  # Import the Firestore client from __init__.py
 
 # Function to upload calorie data to Firestore
 
-def initialize_user_totals(user_id):
-    try:
-        today_date = datetime.now().strftime('%Y-%m-%d')
-        totals_doc_ref = db.collection("users").document(user_id).collection("daily").document(today_date)
-        totals_doc_ref.set({
-            "total_calories": 0,
-            "total_protein": 0,
-            "total_carbohydrates": 0,
-            "total_fat": 0
-        })
-        print("Initialized user totals to zero for today's date.")
-    except Exception as e:
-        print(f"Error initializing user totals in Firebase: {e}")
-
-
-from datetime import datetime
-
 def store_user_goals(user_id, new_goals_data, old_goals_data=None):
     try:
         # Define the Firestore references
