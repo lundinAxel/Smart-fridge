@@ -1,6 +1,5 @@
 from flask import Blueprint, render_template, request, redirect, url_for, jsonify
 from .models import *
-<<<<<<< Updated upstream
 from .firebase import *
 from . import db  # Import the Firestore client
 from datetime import datetime
@@ -11,7 +10,6 @@ calorie_goal = 2000  # Default values
 protein_goal = 150
 carbs_goal = 200
 fat_goal = 50
-=======
 from website.firebase import *
 from . import db  
 import mimetypes
@@ -27,11 +25,6 @@ def mock_predict(image):
     probabilities = np.random.rand(10)  # Example probabilities for 10 classes
     return probabilities
 
-# Process image file into an array
-def preprocess_image(file):
-    file_bytes = np.frombuffer(file.read(), np.uint8)
-    img = cv2.imdecode(file_bytes, cv2.IMREAD_COLOR)
-    return img
 
 def extract_frames(video_path, interval=1):
     video = cv2.VideoCapture(video_path)
@@ -50,7 +43,6 @@ def extract_frames(video_path, interval=1):
     video.release()
     return frames
 
->>>>>>> Stashed changes
 
 # Root route redirects to login by default
 @views.route('/')
@@ -176,79 +168,76 @@ def predict():
 
     if 'file' not in request.files or 'weight' not in request.form:
         return jsonify({"error": "File or weight not provided"}), 400
-    
+
     initialize_user_totals(user_id)
 
     file = request.files['file']
     new_weight = float(request.form['weight'])  # New weight in grams
-<<<<<<< Updated upstream
-    img = preprocess_image(file)
-
-    # Make a prediction
-    try:
-        prediction = model.predict(img)[0]
-=======
     mime_type = file.content_type
 
-    # Define paths for saving and processing files
-    input_path = f'/tmp/{file.filename}'
-    output_path = f'/tmp/trimmed_{file.filename}'
-
     if mime_type.startswith('image'):
-        img = preprocess_image(file)
-        prediction = mock_predict(img)
->>>>>>> Stashed changes
-        predicted_class = np.argmax(prediction)
-        confidence = prediction[predicted_class] * 100
-        fruit_name = f"Fruit_{predicted_class}"  # Replace with actual label_dict if needed
+        # Handle image file
+        try:
+            img = preprocess_image(file)
+            prediction = model.predict(img)[0]
+            predicted_class = np.argmax(prediction)
+            confidence = prediction[predicted_class] * 100
+            fruit_name = label_dict.get(str(predicted_class), "Unknown")
+        except Exception as e:
+            print(f"Error in image prediction process: {e}")
+            return jsonify({"error": "Prediction failed"}), 500
 
     elif mime_type.startswith('video'):
-        video_path = f"/tmp/{file.filename}"
-        file.save(video_path)
+        # Handle video file
+        try:
+            video_path = f"/tmp/{file.filename}"
+            file.save(video_path)
 
-        # Extract frames at 1-second intervals
-        frames = extract_frames(video_path, interval=1)
-        best_prediction = None
-        best_frame = None
+            # Extract frames at 1-second intervals
+            frames = extract_frames(video_path, interval=1)
+            best_prediction = None
 
-        for frame in frames:
-            prediction = mock_predict(frame)
-            max_confidence = max(prediction)
-            if not best_prediction or max_confidence > max(best_prediction):
-                best_prediction = prediction
+            for frame in frames:
+                prediction = model.predict(frame)[0]
+                max_confidence = max(prediction)
+                print(prediction + " and certainty " + max_confidence)
+                if not best_prediction or max_confidence > max(best_prediction):
+                    best_prediction = prediction
 
-        predicted_class = np.argmax(best_prediction)
-        confidence = best_prediction[predicted_class] * 100
-        fruit_name = f"Fruit_{predicted_class}"  # Replace with actual label_dict if needed
+            predicted_class = np.argmax(best_prediction)
+            confidence = best_prediction[predicted_class] * 100
+            fruit_name = label_dict.get(str(predicted_class), "Unknown")
+        except Exception as e:
+            print(f"Error in video prediction process: {e}")
+            return jsonify({"error": "Video processing failed"}), 500
 
     else:
         return jsonify({"error": "Unsupported file type"}), 400
 
     # Retrieve and update nutritional info for the predicted fruit
-    nutrition_info = update_fruit_weight_in_db(user_id, fruit_name, new_weight)
-    if not nutrition_info:
-        return jsonify({"error": f"Nutritional data for {fruit_name} not available"}), 400
+    try:
+        nutrition_info = update_fruit_weight_in_db(user_id, fruit_name, new_weight)
+        if not nutrition_info:
+            return jsonify({"error": f"Nutritional data for {fruit_name} not available"}), 400
+    except Exception as e:
+        print(f"Error updating nutrition info: {e}")
+        return jsonify({"error": "Failed to update nutritional info"}), 500
 
     # Fetch the user's goals from Firebase
     try:
         user_doc_ref = db.collection("users").document(user_id).collection("goals").document("goal")
-        print(user_id)
         user_doc = user_doc_ref.get()
-        print(user_doc)
         if user_doc.exists:
             user_data = user_doc.to_dict()
+            calorie_goal = user_data.get('calorie_goal', 2000)  # Default 2000
+            carbs_goal = user_data.get('carbs_g', 200)          # Default 200
+            protein_goal = user_data.get('protein_g', 150)      # Default 150
+            fat_goal = user_data.get('fat_g', 50)               # Default 50
         else:
             return jsonify({"error": f"No goals found for user {user_id}"}), 404
-
-        # Get the goal values
-        calorie_goal = user_data.get('calorie_goal', 2000)  # Default 2000
-        carbs_goal = user_data.get('carbs_g', 200)          # Default 200
-        protein_goal = user_data.get('protein_g', 150)      # Default 150
-        fat_goal = user_data.get('fat_g', 50)               # Default 50
-        print(calorie_goal)
     except Exception as e:
         print(f"Error fetching user data: {e}")
-        #return jsonify({"error": "Failed to fetch user data"}), 500
+        return jsonify({"error": "Failed to fetch user data"}), 500
 
     # Fetch today's totals
     try:
@@ -289,7 +278,9 @@ def predict():
         calorie_goal=calorie_goal,
         protein_goal=protein_goal,
         carbs_goal=carbs_goal,
-        fat_goal=fat_goal
+        fat_goal=fat_goal,
+        fruit_name=fruit_name,
+        confidence=confidence
     )
 
 
