@@ -1,5 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for, jsonify
 from .models import *
+<<<<<<< Updated upstream
 from .firebase import *
 from . import db  # Import the Firestore client
 from datetime import datetime
@@ -10,6 +11,46 @@ calorie_goal = 2000  # Default values
 protein_goal = 150
 carbs_goal = 200
 fat_goal = 50
+=======
+from website.firebase import *
+from . import db  
+import mimetypes
+import subprocess
+import numpy as np 
+import cv2  
+from .firebase import * 
+#Test
+views = Blueprint('views', __name__)
+
+def mock_predict(image):
+    # Simulate prediction logic
+    probabilities = np.random.rand(10)  # Example probabilities for 10 classes
+    return probabilities
+
+# Process image file into an array
+def preprocess_image(file):
+    file_bytes = np.frombuffer(file.read(), np.uint8)
+    img = cv2.imdecode(file_bytes, cv2.IMREAD_COLOR)
+    return img
+
+def extract_frames(video_path, interval=1):
+    video = cv2.VideoCapture(video_path)
+    fps = int(video.get(cv2.CAP_PROP_FPS))
+    frames = []
+    count = 0
+
+    while True:
+        success, frame = video.read()
+        if not success:
+            break
+        if count % (fps * interval) == 0:
+            frames.append(frame)
+        count += 1
+
+    video.release()
+    return frames
+
+>>>>>>> Stashed changes
 
 # Root route redirects to login by default
 @views.route('/')
@@ -140,17 +181,48 @@ def predict():
 
     file = request.files['file']
     new_weight = float(request.form['weight'])  # New weight in grams
+<<<<<<< Updated upstream
     img = preprocess_image(file)
 
     # Make a prediction
     try:
         prediction = model.predict(img)[0]
+=======
+    mime_type = file.content_type
+
+    # Define paths for saving and processing files
+    input_path = f'/tmp/{file.filename}'
+    output_path = f'/tmp/trimmed_{file.filename}'
+
+    if mime_type.startswith('image'):
+        img = preprocess_image(file)
+        prediction = mock_predict(img)
+>>>>>>> Stashed changes
         predicted_class = np.argmax(prediction)
         confidence = prediction[predicted_class] * 100
-        fruit_name = label_dict.get(str(predicted_class), "Unknown")
-    except Exception as e:
-        print(f"Error in prediction process: {e}")
-        return jsonify({"error": "Prediction failed"}), 500
+        fruit_name = f"Fruit_{predicted_class}"  # Replace with actual label_dict if needed
+
+    elif mime_type.startswith('video'):
+        video_path = f"/tmp/{file.filename}"
+        file.save(video_path)
+
+        # Extract frames at 1-second intervals
+        frames = extract_frames(video_path, interval=1)
+        best_prediction = None
+        best_frame = None
+
+        for frame in frames:
+            prediction = mock_predict(frame)
+            max_confidence = max(prediction)
+            if not best_prediction or max_confidence > max(best_prediction):
+                best_prediction = prediction
+
+        predicted_class = np.argmax(best_prediction)
+        confidence = best_prediction[predicted_class] * 100
+        fruit_name = f"Fruit_{predicted_class}"  # Replace with actual label_dict if needed
+
+    else:
+        return jsonify({"error": "Unsupported file type"}), 400
 
     # Retrieve and update nutritional info for the predicted fruit
     nutrition_info = update_fruit_weight_in_db(user_id, fruit_name, new_weight)
