@@ -135,8 +135,6 @@ def predict():
 
     if 'file' not in request.files or 'weight' not in request.form:
         return jsonify({"error": "File or weight not provided"}), 400
-    
-    initialize_user_totals(user_id)
 
     file = request.files['file']
     new_weight = float(request.form['weight'])  # New weight in grams
