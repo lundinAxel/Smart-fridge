@@ -6,7 +6,7 @@
 | **Aleksander Jankovic**   | Högskolan i Halmstad |         Computer Engineering              | [alejan22@student.hh.se](mailto:alejan22@student.hh.se) |
 | **Axel Lundin**      | Högskolan i Halmstad | Computer Engineering | [axelun22@student.hh.se](mailto:axelun22@student.hh.se) |
 | **Hyunsuk Lee**     | Hanyang University                   | tbh                      | [tbh] |
-| **Mohammed Ismaili**      | Hanyang University             | tbh                      | [tbh] |
+| **Mohammed Ismaili**      | Hanyang University             | Computer Science                      | [Mo.Ismaili@aui.ma](mailto:Mo.Ismaili@aui.ma) |
 
 ## About the App
 
