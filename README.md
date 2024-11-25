@@ -137,7 +137,7 @@ The **methodology of FreshLife** is centered on the seamless integration of smar
   - A Convolutional Neural Network (CNN) was trained on the curated dataset using TensorFlow and Keras. The model processes images and videos to identify food items with a 
   - test accuracy of 97%.
 
- - **Data Augmentation:**
+**Data Augmentation:**
   - Techniques such as rotation, scaling, flipping, and shifting were employed during training to improve the model's robustness to variations in lighting, angles, and 
   environmental conditions.
   - The model is optimized for real-world scenarios, such as detecting items in a refrigerator environment, ensuring seamless functionality when paired with internal 
