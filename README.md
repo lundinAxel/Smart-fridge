@@ -115,7 +115,54 @@ Together, these datasets empower users to make informed dietary choices and alig
 
 Methdology
 
-TBD
+The **methodology of FreshLife** is centered on the seamless integration of smart technology, machine learning, and personalized nutrition guidance to empower users in achieving their health goals. Here’s how each component contributes to the app’s overall functionality:
+
+**1. Data Collection and Integration**
+
+ - **Image and Nutritional Data:**
+   - The Image Classification Dataset is used to train a custom machine learning model capable of identifying fruits and vegetables. This dataset was curated from the 
+   Kaggle Fruits 360 Dataset and optimized for the specific requirements of a smart refrigerator environment.
+   - The Nutritional Information Dataset provides detailed caloric and macronutrient data for each identified food item. This data is stored in both JSON format and 
+   Firebase Firestore for accuracy, consistency, and real-time access.
+
+ - **User Input Data:**
+   - Users input personal information (age, weight, height, activity levels, and dietary goals) into the app. This data is securely stored in Firebase and used to compute 
+   their Basal Metabolic Rate (BMR) and Total Daily Energy Expenditure (TDEE), forming the basis of personalized dietary recommendations.
+
+ - **Real-Time Fridge Data:**
+   - Smart refrigerator sensors capture weight changes and internal cameras provide visual data, enabling the system to track food consumption dynamically. This data is 
+   paired with the classification and nutritional datasets to calculate calories consumed.
+
+**2. Machine Learning Model Development**
+  - A Convolutional Neural Network (CNN) was trained on the curated dataset using TensorFlow and Keras. The model processes images and videos to identify food items with a 
+  - test accuracy of 97%.
+
+ - **Data Augmentation:**
+  - Techniques such as rotation, scaling, flipping, and shifting were employed during training to improve the model's robustness to variations in lighting, angles, and 
+  environmental conditions.
+  - The model is optimized for real-world scenarios, such as detecting items in a refrigerator environment, ensuring seamless functionality when paired with internal 
+  sensors and cameras.
+
+ - **3. Data Processing and Storage**
+  - Once the machine learning model identifies a food item, the app queries the Nutritional Information Dataset in Firebase Firestore to retrieve corresponding nutritional 
+  values. These values are calculated based on weight measurements recorded by the smart refrigerator’s internal scales.
+  - All consumption data is securely stored in the user’s profile for tracking and analysis.
+
+ - **4. Personalized Nutritional Guidance**
+  - Using user input data, the app computes personalized targets, including calorie limits and macronutrient distribution, based on the user's goals (e.g., weight loss, 
+  maintenance, or bulking).
+  - Real-time adjustments are made as users update their weight, activity level, or dietary goals.
+
+ - **5. Progress Tracking and Feedback**
+  - FreshLife provides detailed charts and summaries of daily calorie consumption, macronutrient intake, and trends over time.
+  This data empowers users to make informed dietary decisions and refine their habits to align with their fitness objectives.
+
+- **Why This Methodology Works**
+The integrated approach of using machine learning for food recognition, real-time data from a smart refrigerator, and personalized user profiles ensures:
+  - High accuracy and reliability in tracking food consumption.
+  - Tailored guidance that adapts to individual needs and progress.
+  An intuitive and effortless experience for users aiming to achieve their health and fitness goals.
+  - This methodology not only enhances user engagement but also sets the foundation for a smarter, healthier lifestyle through innovative technology.
 
 Evaluation & Analysis
 
