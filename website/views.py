@@ -1,14 +1,24 @@
 from flask import Blueprint, render_template, request, redirect, url_for, jsonify
 from .models import *
-from website.firebase import *
+from .firebase import *
 from . import db  
-import mimetypes
-import subprocess
+from datetime import datetime
 import os
-import cv2  
-from firebase import upload_to_firebase 
+import cv2
+import numpy as np
+import tensorflow as tf
+from tensorflow.keras.models import load_model
+from werkzeug.utils import secure_filename
 #Test
 views = Blueprint('views', __name__)
+
+UPLOAD_FOLDER = 'static/uploads'
+ALLOWED_EXTENSIONS = {'mp4'}
+
+model = load_model('static/models/video_prediction_model.h5')
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 def trim_video(input_path, output_path, duration=10):
     command = [
@@ -35,6 +45,40 @@ def extract_frames(video_path, frame_count=10):
 @views.route('/')
 def home():
     return redirect(url_for('views.login'))
+
+@views.route('/upload', methods=['POST'])
+def upload_video():
+    if 'file' not in request.files:
+        return jsonify({'error': 'No file part'}), 400
+
+    file = request.files['file']
+    if file.filename == '':
+        return jsonify({'error': 'No selected file'}), 400
+
+    if file and allowed_file(file.filename):
+        filename = secure_filename(file.filename)
+        filepath = os.path.join(UPLOAD_FOLDER, filename)
+        file.save(filepath)
+
+        prediction_result = process_and_predict(filepath)
+        return jsonify({'message': 'File uploaded successfully', 'prediction': prediction_result}), 200
+    else:
+        return jsonify({'error': 'Invalid file format'}), 400
+
+def process_and_predict(filepath):
+    cap = cv2.VideoCapture(filepath)
+    frames = []
+    while True:
+        ret, frame = cap.read()
+        if not ret:
+            break
+        frame = cv2.resize(frame, (224, 224))  
+        frames.append(frame)
+    cap.release()
+    frames = np.array(frames)
+
+    prediction = model.predict(frames)
+    return np.argmax(prediction, axis=-1).tolist()
 
 # Route for the login page
 @views.route('/login')
