@@ -61,15 +61,18 @@ The **Nutritional Information Dataset** forms a critical part of the app's funct
 - The dataset contains nutritional values (calories, protein, fats, and carbohydrates per 100g) for various food items.
 - Stored in JSON format (calorie_data.json), it acts as a backup to prevent data loss in case of errors within the Firebase database.
 - Each food item is labeled consistently with the fruit classification model to ensure seamless integration. For example, different types of bananas are grouped under the same label, allowing the app to easily fetch the correct nutritional data.
+
 **Integration:**
 
 - The dataset is synced with Firebase Firestore to enable real-time data access. When the app's fruit recognition model identifies an item, it queries the database for its corresponding nutritional information.
 - This integration ensures that the app can calculate the calories and macronutrients consumed based on the fruit detected and its recorded weight changes from the internal refrigerator scale.
+
 **Why This Approach?:**
 
 - Accuracy: By using a structured and verified dataset (derived from sources like USDA and user-provided entries), the app ensures that the nutritional information is both reliable and precise.
 - Consistency with the Model: Labeling alignment between the machine learning model and the nutritional dataset eliminates errors, allowing for accurate tracking and calculation of calories consumed.
 - User Personalization: Once the nutritional data is processed, it is stored in the user’s account, ensuring personalized tracking and progress monitoring over time.
+
 **For the user, this means:**
 
 -The app not only detects what food they are consuming but also calculates how it contributes to their daily caloric and macronutrient intake.
@@ -77,11 +80,38 @@ This personalized tracking helps users make informed dietary decisions, aligning
 
 ***User Input Data:***
 
-Data collected from users, including age, weight, height, activity levels, and dietary goals, is stored securely in Firebase. This data is used to calculate personalized nutritional requirements such as Basal Metabolic Rate (BMR) and Total Daily Energy Expenditure (TDEE).
-Real-Time Fridge Data:
+The **User Input Data** serves as the foundation for the app's personalized nutritional guidance and tracking capabilities. It is designed to provide users with tailored recommendations based on their unique profiles and fitness goals.
 
-Data from the smart refrigerator includes weight measurements and visual data captured by internal cameras. This data is used for automatic updates of the food inventory and consumption tracking.
-The integration of these datasets enables the app to provide precise nutritional tracking and personalized dietary recommendations tailored to user goals.
+**Data Collected:**
+
+  - Personal Information: Age, weight, height, and gender.
+  - Activity Levels: Frequency and intensity of physical activity (e.g., sedentary, moderate, or high activity levels).
+  - Dietary Goals: Users specify goals such as weight loss, maintenance, or bulking for muscle gain.
+
+**Integration:**
+
+  - This information is stored securely in Firebase, ensuring that user data is safe and accessible for real-time calculations and updates.
+  - The app uses this data to compute Basal Metabolic Rate (BMR) and Total Daily Energy Expenditure (TDEE), which are essential for setting calorie and macronutrient 
+  targets.
+
+**Purpose:**
+
+  - The collected data allows the app to personalize recommendations, such as calorie limits and macronutrient distribution, based on the user’s current stats and desired 
+  outcomes.
+  - For example, a user aiming for weight loss will be guided to maintain a calorie deficit, while someone focusing on muscle gain will receive a higher calorie and protein 
+  target.
+
+**For the user, this means:**
+
+  - They can effortlessly track their progress towards specific dietary goals.
+  - The app dynamically adjusts recommendations as their weight, activity level, or goals change, ensuring a continuously optimized experience.
+  Real-Time Fridge Data
+  - In conjunction with user input data, the app also incorporates real-time information from the smart refrigerator:
+    - Weight Measurements: Captured by internal scales to detect changes in food quantities.
+    - Visual Data: Analyzed by the fruit recognition model to identify items added or removed from the fridge.
+    These real-time updates ensure accurate tracking of food consumption, which is automatically synced with the user's profile and dietary goals.
+
+Together, these datasets empower users to make informed dietary choices and align their eating habits with their health objectives seamlessly
 
 Methdology
 
