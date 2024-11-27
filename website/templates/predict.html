@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Prediction Result</title>
     <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
         <style>
             @import url("https://fonts.googleapis.com/css2?family=Pacifico&display=swap");
             html, body {
@@ -216,11 +217,8 @@
                 top: 180px; /* Place it below the date picker */
                 width: 90%; /* Fit it inside the phone screen */
                 height: auto; /* Let it adapt to its content */
-                z-index: 2; /* Ensure it's visible above other elements */
+                z-index: 1; /* Ensure it's visible above other elements */
                 display: flex;
-                justify-content: center;
-                align-items: center;
-                outline: 1px solid red;
             }
             #dateForm {
                 position: absolute;
@@ -228,7 +226,6 @@
                 width: 90%; /* Keep it inside the phone screen */
                 text-align: center; /* Center the text and input */
                 z-index: 2; /* Ensure it's above other elements */
-                outline: 1px solid blue;
             }
 
         </style>
@@ -268,9 +265,7 @@
                 <a href="/base" class="return-button" onclick="window.location.href='/base'">Return</a>
             </div>
         </div>
-    <script src="https://www.gstatic.com/firebasejs/10.4.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.4.0/firebase-auth-compat.js"></script>
-    <script src="/static/js/createUser.js"></script>
-    <script src="/static/js/prediction.js" defer></script>
-</body>
+        <script src="/static/js/auth.js"></script>
+        <script src="/static/js/prediction.js" defer></script>
+    </body>
 </html>

@@ -3,48 +3,128 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Modify User Details - FreshLife</title>
+    <title>User Details - FreshLife</title>
     <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
     <style>
-        /* Basic styling */
-        body {
-            font-family: Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+        @import url("https://fonts.googleapis.com/css2?family=Pacifico&display=swap");
+        html, body {
             height: 100vh;
             margin: 0;
-            background: linear-gradient(to bottom, #0d1b2a, #8e9cb0);
-        }
-        .phone-frame {
             display: flex;
             justify-content: center;
             align-items: center;
-            width: 330px;
-            height: 550px;
-            border-radius: 30px;
-            border: 3px solid #000;
-            background-color: #000;
-            box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.5);
-            position: relative;
+            font-family: poppins;
+            background-color: #121212;   
         }
-        .screen {
-            width: 96%;
-            height: 90%;
-            background-color: #ffffff;
-            border-radius: 25px;
-            border: 3px solid #000;
+        .phone{
+            z-index: 1;
+            position: relative;
+            width: min(300px);
+            height: 600px;
             display: flex;
-            flex-direction: column;
             align-items: center;
-            padding-top: 20px;
-            position: relative;
+            justify-content: center;
+            text-align: center;
+            background: black;
+            border-radius: 50px;
+            border-style: solid;
+            border-color: #666;
         }
-        .header {
-            font-family: 'Pacifico', cursive;
-            font-size: 24px;
-            color: #000;
-            margin-bottom: 10px;
+
+        .phone::before{
+            z-index: -1;
+            content: "";
+            position: absolute;
+            inset: 8px;
+            background-color: antiquewhite;
+            border-radius: 42px;
+        }
+
+        .lensmain{
+            position: absolute;
+            z-index: 0;
+            top: 20px;
+            height: 20px;
+            width: 120px;
+            background-color: black;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            border-radius: 20px;
+            padding-top: 5px;
+            padding-bottom: 5px;
+        }
+
+        .lensmain::before{
+            content: "";
+            z-index: -1;
+            position: absolute;
+            background-color: #000000;
+            width: 120px;
+            height: inherit;
+            border-radius: 20px;
+            transition: 0.3s ease-in-out;
+        }
+        .lensmain:hover::before{
+            width: 140px;
+            height: 30px;
+            margin: -40px;
+        }
+
+        .camera1{
+            background: radial-gradient(#3f3978,#0c0c29,#283964);
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+        }
+        .camera2{
+            background: radial-gradient(#3f3978,#0c0c29,#283964);
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+        }
+
+        .mute{
+            position: absolute;
+            top: 110px;
+            left: -6px;
+            width: 3px;
+            height: 26px;
+            background: radial-gradient(#ccc,#666,#222);
+        }
+        .volup{
+            position: absolute;
+            top: 160px;
+            left: -6px;
+            width: 3px;
+            height: 40px;
+            background: radial-gradient(#ccc,#666,#222);
+        }
+        .voldown{
+            position: absolute;
+            top: 210px;
+            left: -6px;
+            width: 3px;
+            height: 40px;
+            background: radial-gradient(#ccc,#666,#222);
+        }
+        .power{
+            position: absolute;
+            top: 170px;
+            right: -6px;
+            width: 3px;
+            height: 70px;
+            background: radial-gradient(#ccc,#666,#222);
+        }
+        .antena{
+            position: absolute;
+            z-index: 1;
+            top: -4px;
+            height: 6px;
+            width: 10px;
+            right: 45px;
+            border: solid;
+            background-color: #ccc;
         }
         .input-field {
             padding: 8px;
@@ -52,7 +132,7 @@
             margin: 5px 0;
             background-color: #f0f0f0;
             border: 1px solid #cccccc;
-            border-radius: 5px;
+            border-radius: 15px;
             font-size: 16px;
         }
         .button-group {
@@ -79,42 +159,96 @@
             color: #ffffff;
         }
         .button {
-            width: 80%;
-            padding: 12px;
+            position: absolute;
+            width: 90%; /* Stretch button to match input width */
+            padding: 15px;
+            bottom: 100px;
             background-color: #0abf53;
             color: #ffffff;
             border: none;
             border-radius: 5px;
-            font-size: 16px;
+            font-size: 18px;
             font-weight: bold;
             cursor: pointer;
-            margin-top: 15px;
         }
         .button1 {
-            width: 80%;
-            padding: 12px;
+            position: absolute;
+            width: 90%; /* Stretch button to match input width */
+            padding: 15px;
+            bottom: 40px;
             background-color: #0abf53;
             color: #ffffff;
             border: none;
             border-radius: 5px;
-            font-size: 16px;
+            font-size: 18px;
             font-weight: bold;
             cursor: pointer;
-            margin-top: 15px;
+        }
+        .logo {
+            position: absolute;
+            top: 45px;
+            font-family: 'Pacifico', cursive; /* Apply Pacifico font */
+            font-size: 28px;
+            color: #000; /* Black color */
+            margin-bottom: 40px;
+        }
+        .login-button {
+            position: absolute;
+            top: 15px;
+            right: 22px; /* Adjust this value as needed for spacing */
+            color: #000;
+            text-decoration: none;
+            font-weight: bold;
+            border: 1px solid #000;
+            padding: 2px 5px;
+            border-radius: 5px;
+            background-color: #ffffff;
+        }
+
+        .login-button:hover {
+            background-color: #d1d1d1;
+        }
+        .login-button {
+            position: absolute;
+            top: 25px;
+            font-size: 11px; /* Reduced font size */
+            padding: 3px 8px; /* Smaller padding */
+            border-radius: 4px; /* Slightly smaller corner radius */
+            background-color: #ffffff;
+            transition: background-color 0.3s;
+        }
+        form {
+            position: absolute;
+            display: flex;
+            top: 100px;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            position: absolute;
+            width: 90%; /* Ensure inputs fit within the phone screen */
         }
     </style>
 </head>
 <body>
-    <div class="phone-frame">
-        <div class="screen">
-            <div class="header">User Details</div>
+    <div class="container">
+        <div class="phone">
+            <div class="lensmain">
+                <div class="camera1"></div>
+                <div class="camera2"></div>
+            </div>
+            <div class="mute"></div>
+            <div class="volup"></div>
+            <div class="voldown"></div>
+            <div class="power"></div>
+            <div class="antena"></div>
+            <div class="logo">FreshLife</div>
+            <a href="/login" class="login-button" onclick=logout()>Log out</a>
 
             <!-- Form for User Details -->
             <form id="userForm" method="POST" action="/updateUser" style="display: flex; flex-direction: column; align-items: center;">
                 <input type="number" name="age" id="age" placeholder="Age" class="input-field" required>
                 <input type="number" name="height" id="height" placeholder="Height (cm)" class="input-field" required>
                 <input type="number" name="weight" id="weight" placeholder="Weight (kg)" class="input-field" required>
-            
             
                 <div style="width: 80%; text-align: left; margin-top: 10px;">Goal</div>
                 <div class="button-group" id="goal-group">
@@ -133,13 +267,12 @@
                     <button type="button" class="select-button" onclick="selectOption('activity', '4-7 times/week')">4-7</button>
                 </div>
             
-                <button type="submit" class="button">Complete Registration</button>
-                <button type="button" class="button1" onclick="window.location.href='/base'">Return</a>
             </form>
+            <button type="submit" class="button">Complete Registration</button>
+            <button type="button" class="button1" onclick="window.location.href='/base'">Return</a>
+            </div>
         </div>
-    </div>
-    <script src="https://www.gstatic.com/firebasejs/10.4.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.4.0/firebase-auth-compat.js"></script>
     <script src="/static/js/modifyUser.js"></script>
+    <script src="/static/js/auth.js"></script>
 </body>
 </html>
