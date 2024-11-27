@@ -3,10 +3,6 @@ from . import db  # Import the Firestore client from __init__.py
 
 # Function to upload calorie data to Firestore
 
-
-
-from datetime import datetime
-
 def store_user_goals(user_id, new_goals_data, old_goals_data=None):
     try:
         # Define the Firestore references
