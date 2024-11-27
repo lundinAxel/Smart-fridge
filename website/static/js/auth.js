@@ -68,12 +68,14 @@ function logout() {
 
 // Function for user registration
 window.createAccount = function() {
+    alert("click!")
     console.log("Register function called");
     const email = document.getElementById("email").value;
     const password = document.getElementById("password").value;
     const passwordRepeat = document.getElementById('password-repeat').value;
 
     if (password !== passwordRepeat) {
+        alert("notmatching")
         console.log("Passwords do not match");
         document.getElementById('message').textContent = "Passwords do not match.";
         return;

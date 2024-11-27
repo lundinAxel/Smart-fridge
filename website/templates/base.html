@@ -2,108 +2,136 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FreshLife</title>
-    <!-- Import Pacifico font from Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
-    
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
     <style>
-        /* Dark blue gradient background */
-        body {
-            font-family: Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+        @import url("https://fonts.googleapis.com/css2?family=Pacifico&display=swap");
+        html, body {
             height: 100vh;
             margin: 0;
-            background: linear-gradient(to bottom, #0d1b2a, #8e9cb0);
-        }
-
-        /* Outer phone frame */
-        .phone-frame {
             display: flex;
             justify-content: center;
             align-items: center;
-            width: 330px;
-            height: 550px;
-            border-radius: 30px;
-            border: 3px solid #000; /* Black outer border */
-            background-color: #000; /* Black background for the outer frame */
-            box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.5);
-            position: relative;
+            font-family: poppins;
+            background-color: #121212;   
         }
-
-        /* Inner screen area */
-        .screen {
-            width: 96%;
-            height: 90%;
-            background-color: #ffffff;
-            border-radius: 25px;
-            border: 3px solid #000; /* Black inner border */
-            box-shadow: inset 0px 0px 10px rgba(0, 0, 0, 0.3);
+        .phone{
+            z-index: 1;
+            position: relative;
+            width: min(300px);
+            height: 600px;
             display: flex;
-            flex-direction: column;
             align-items: center;
-            padding-top: 40px;
-            position: relative;
-            overflow: hidden;
+            justify-content: center;
+            text-align: center;
+            background: black;
+            border-radius: 50px;
+            border-style: solid;
+            border-color: #666;
         }
 
-        /* Camera cutout at the top center inside the screen */
-        .camera-cutout {
+        .phone::before{
+            z-index: -1;
+            content: "";
             position: absolute;
-            top: 10px;
-            width: 80px;
+            inset: 8px;
+            background-color: antiquewhite;
+            border-radius: 42px;
+        }
+
+        .lensmain{
+            position: absolute;
+            z-index: 0;
+            top: 20px;
             height: 20px;
-            background-color: #000;
-            border-radius: 10px;
+            width: 120px;
+            background-color: black;
             display: flex;
-            align-items: center;
             justify-content: space-around;
+            align-items: center;
+            border-radius: 20px;
+            padding-top: 5px;
+            padding-bottom: 5px;
         }
 
-        /* Small white circle (microphone) on the left */
-        .microphone {
-            width: 5px;
-            height: 5px;
-            background-color: #fff;
+        .lensmain::before{
+            content: "";
+            z-index: -1;
+            position: absolute;
+            background-color: #000000;
+            width: 120px;
+            height: inherit;
+            border-radius: 20px;
+            transition: 0.3s ease-in-out;
+        }
+        .lensmain:hover::before{
+            width: 140px;
+            height: 30px;
+            margin: -40px;
+        }
+
+        .camera1{
+            background: radial-gradient(#3f3978,#0c0c29,#283964);
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+        }
+        .camera2{
+            background: radial-gradient(#3f3978,#0c0c29,#283964);
+            width: 15px;
+            height: 15px;
             border-radius: 50%;
         }
 
-        /* Large white circle with inner black circle (camera) in the center */
-        .camera {
+        .mute{
+            position: absolute;
+            top: 110px;
+            left: -6px;
+            width: 3px;
+            height: 26px;
+            background: radial-gradient(#ccc,#666,#222);
+        }
+        .volup{
+            position: absolute;
+            top: 160px;
+            left: -6px;
+            width: 3px;
+            height: 40px;
+            background: radial-gradient(#ccc,#666,#222);
+        }
+        .voldown{
+            position: absolute;
+            top: 210px;
+            left: -6px;
+            width: 3px;
+            height: 40px;
+            background: radial-gradient(#ccc,#666,#222);
+        }
+        .power{
+            position: absolute;
+            top: 170px;
+            right: -6px;
+            width: 3px;
+            height: 70px;
+            background: radial-gradient(#ccc,#666,#222);
+        }
+        .antena{
+            position: absolute;
+            z-index: 1;
+            top: -4px;
+            height: 6px;
             width: 10px;
-            height: 10px;
-            background-color: #fff;
-            border-radius: 50%;
-            position: relative;
+            right: 45px;
+            border: solid;
+            background-color: #ccc;
         }
-
-        .camera::before {
-            content: '';
+        /* Updated CSS for positioning */
+        .modify-button {
             position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 5px;
-            height: 5px;
-            background-color: #000;
-            border-radius: 50%;
-        }
-
-        /* Small white circle on the right */
-        .right-circle {
-            width: 5px;
-            height: 5px;
-            background-color: #fff;
-            border-radius: 50%;
-        }
-
-        /* Login button at the top right inside the screen */
-        .login-button {
-            position: absolute;
-            top: 10px;
-            right: 15px;
+            top: 15px;
+            left: 25px; /* Adjust this value as needed to align with the camera */
             color: #000;
             text-decoration: none;
             font-weight: bold;
@@ -114,50 +142,44 @@
             transition: background-color 0.3s;
         }
 
+        .modify-button:hover {
+            background-color: #d1d1d1;
+        }
+
+        .login-button {
+            position: absolute;
+            top: 15px;
+            right: 22px; /* Adjust this value as needed for spacing */
+            color: #000;
+            text-decoration: none;
+            font-weight: bold;
+            border: 1px solid #000;
+            padding: 2px 5px;
+            border-radius: 5px;
+            background-color: #ffffff;
+            transition: background-color 0.3s;
+        }
+
         .login-button:hover {
             background-color: #d1d1d1;
         }
 
-        /* Logo styling */
-        .logo {
-            font-family: 'Pacifico', cursive; /* Apply Pacifico font */
-            font-size: 28px;
-            color: #000; /* Black color */
-            margin-bottom: 20px;
-        }
-
-        /* Form styling */
+        /* Center upload section in the screen */
         form {
             display: flex;
+            top: 150px;
             flex-direction: column;
             align-items: center;
-            gap: 15px;
-            width: 80%;
-            margin-bottom: auto; /* Push form elements above the button */
+            gap: 10px;
+            position: absolute;
+            width: 90%; /* Ensure inputs fit within the phone screen */
         }
 
-        input[type="file"], input[type="number"] {
-            padding: 10px;
-            width: 100%;
-            background-color: #f0f0f0;
-            border: 1px solid #cccccc;
-            border-radius: 5px;
-            font-size: 16px;
-        }
-
-        input[type="file"]::file-selector-button {
-            background-color: #cccccc;
-            color: #000;
-            border: none;
-            padding: 5px 10px;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        /* Upload button at the bottom */
         .upload-button {
-            width: 80%;
+            position: absolute;
+            width: 90%; /* Stretch button to match input width */
             padding: 15px;
+            bottom: 40px;
             background-color: #0abf53;
             color: #ffffff;
             border: none;
@@ -165,61 +187,67 @@
             font-size: 18px;
             font-weight: bold;
             cursor: pointer;
-            margin-top: auto; /* Push button to the bottom */
-            margin-bottom: 10px; /* Add 10px distance from the bottom */
             transition: background-color 0.3s;
         }
 
         .upload-button:hover {
             background-color: #099846;
         }
-        .modify-button {
-    position: absolute;
-    top: 10px;
-    left: 15px;
-    color: #000;
-    text-decoration: none;
-    font-weight: bold;
-    border: 1px solid #000;
-    padding: 5px 10px;
-    border-radius: 5px;
-    background-color: #ffffff;
-    transition: background-color 0.3s;
-    }
-
-    .modify-button:hover {
-        background-color: #d1d1d1;
-    }
+        .modify-button, .login-button {
+            position: absolute;
+            top: 25px;
+            font-size: 11px; /* Reduced font size */
+            padding: 3px 8px; /* Smaller padding */
+            border-radius: 4px; /* Slightly smaller corner radius */
+            background-color: #ffffff;
+            transition: background-color 0.3s;
+        }
+        .logo {
+            position: absolute;
+            top: 45px;
+            font-family: 'Pacifico', cursive; /* Apply Pacifico font */
+            font-size: 28px;
+            color: #000; /* Black color */
+            margin-bottom: 20px;
+        }
     </style>
-</head>
-<body>
-    <div class="phone-frame">
-        <!-- Inner screen content -->
-        <div class="screen">
-            <!-- Camera cutout in the center -->
-            <div class="camera-cutout">
-                <div class="microphone"></div>
-                <div class="camera"></div>
-                <div class="right-circle"></div>
+    
+    <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+    </head>
+    <body>
+        <div class="container">
+            <div class="phone">
+                <div class="lensmain">
+                    <div class="camera1"></div>
+                    <div class="camera2"></div>
+                </div>
+                <div class="mute"></div>
+                <div class="volup"></div>
+                <div class="voldown"></div>
+                <div class="power"></div>
+                <div class="antena"></div>
+
+                <a href="/modifyUser" class="modify-button" onclick="window.location.href='/modifyUser'">Modify</a>
+                <a href="/login" class="login-button" onclick=logout()>Log out</a>
+
+                <!-- Logo Title -->
+                <div class="logo">FreshLife</div>
+
+                <!-- Form for file upload and weight entry -->
+                <form id="uploadForm" action="/predict" method="post" enctype="multipart/form-data">
+                    <input type="file" name="file" accept="image/*,video/*" required><br>
+                    <input type="number" name="weight" placeholder="Enter weight in grams" required><br>
+                </form>
+
+                <!-- Upload Button at the bottom -->
+                <button type="submit" form="uploadForm" class="upload-button">Upload</button>
             </div>
-
-            <!-- Login Button -->
-            <a href="/modifyUser" class="modify-button" onclick="window.location.href='/modifyUser'">Modify</a>
-            <a href="/login" class="login-button" onclick=logout()>Log out</a>
-
-            <!-- Logo Title -->
-            <div class="logo">FreshLife</div>
-
-            <!-- Form for file upload and weight entry -->
-            <form id="uploadForm" action="/predict" method="post" enctype="multipart/form-data">
-                <input type="file" name="file" accept="image/*,video/*" required><br>
-                <input type="number" name="weight" placeholder="Enter weight in grams" required><br>
-            </form>
-
-            <!-- Upload Button at the bottom -->
-            <button type="submit" form="uploadForm" class="upload-button">Upload</button>
         </div>
-    </div>
+    </body>
     <script src="/static/js/auth.js"></script>
 </body>
+
 </html>

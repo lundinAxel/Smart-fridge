@@ -1,3 +1,4 @@
+# type: ignore
 from flask import Blueprint, render_template, request, redirect, url_for, jsonify
 from .models import *
 from .firebase import *
@@ -16,10 +17,6 @@ calorie_goal = 2000  # Default values
 protein_goal = 150
 carbs_goal = 200
 fat_goal = 50
-#Test
-
-import os
-import cv2
 
 def extract_frames(video_path, interval=1, output_dir="output_frames"):
     # Create the output directory if it doesn't exist
