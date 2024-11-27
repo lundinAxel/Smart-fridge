@@ -55,6 +55,8 @@ def update_fruit_weight_in_db(user_id, fruit_name, new_weight):
         totals_doc = totals_doc_ref.get()
         if totals_doc.exists:
             totals = totals_doc.to_dict()
+            print(totals.get("total_calories", 0))
+            print(user_id)
             totals_doc_ref.update({
                 "total_calories": totals.get("total_calories", 0) + calories,
                 "total_protein": totals.get("total_protein", 0) + protein,
