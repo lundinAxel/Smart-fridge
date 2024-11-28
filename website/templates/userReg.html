@@ -4,88 +4,36 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register - FreshLife</title>
+    <link rel="stylesheet" href="/static/css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
-    <style>
-        /* Basic styling */
-        body {
-            font-family: Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            background: linear-gradient(to bottom, #0d1b2a, #8e9cb0);
-        }
-        .phone-frame {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            width: 330px;
-            height: 550px;
-            border-radius: 30px;
-            border: 3px solid #000;
-            background-color: #000;
-            box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.5);
-            position: relative;
-        }
-        .screen {
-            width: 96%;
-            height: 90%;
-            background-color: #ffffff;
-            border-radius: 25px;
-            border: 3px solid #000;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding-top: 40px;
-            position: relative;
-        }
-        .header {
-            font-family: 'Pacifico', cursive;
-            font-size: 24px;
-            color: #000;
-            margin-bottom: 20px;
-        }
-        .input-field {
-            padding: 10px;
-            width: 80%;
-            margin: 10px 0;
-            background-color: #f0f0f0;
-            border: 1px solid #cccccc;
-            border-radius: 5px;
-            font-size: 16px;
-        }
-        .button {
-            width: 80%;
-            padding: 15px;
-            background-color: #0abf53;
-            color: #ffffff;
-            border: none;
-            border-radius: 5px;
-            font-size: 18px;
-            font-weight: bold;
-            cursor: pointer;
-            margin-top: 10px;
-            transition: background-color 0.3s;
-        }
-        .button:hover {
-            background-color: #099846;
-        }
-    </style>
-</head>
-<body>
-    <div class="phone-frame">
-        <div class="screen">
-            <div class="header">FreshLife</div>
-            <input type="text" id="email" placeholder="email" class="input-field">
-            <input type="password" id="password" placeholder="Password" class="input-field">
-            <input type="password" id="password-repeat" placeholder="Repeat Password" class="input-field">
-            <button class="button" onclick="createAccount()">Create Account</button>
-            <div id="message"></div>
+    <body>
+        <img src="/static/images/freshLife.png" class="logo-left" alt="FreshLife Logo">
+        <img src="/static/images/freshLife.png" class="logo-right" alt="FreshLife Logo">
+
+        <div class="container">
+            <div class="phone">
+                <div class="lensmain">
+                    <div class="camera1"></div>
+                    <div class="camera2"></div>
+                </div>
+                <div class="mute"></div>
+                <div class="volup"></div>
+                <div class="voldown"></div>
+                <div class="power"></div>
+                <div class="antena"></div>
+
+                <!-- Logo Title -->
+                <div class="logo">FreshLife</div>
+
+                <input type="text" id="email" placeholder="email" class="input-field">
+                <input type="password" id="password" placeholder="Password" class="input-field1">
+                <input type="password" id="password-repeat" placeholder="Repeat Password" class="input-field2">
+                <button class="button1" onclick="createAccount()">Create Account</button>
+            </div>
         </div>
-    </div>
-    <script src="https://www.gstatic.com/firebasejs/10.4.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.4.0/firebase-app-compat.js"></script>   
     <script src="https://www.gstatic.com/firebasejs/10.4.0/firebase-auth-compat.js"></script>
     <script src="/static/js/auth.js"></script>
 </body>
 </html>
+

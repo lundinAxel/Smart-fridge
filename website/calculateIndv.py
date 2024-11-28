@@ -1,9 +1,6 @@
 from math import ceil
 
 # Define constants for activity multipliers and macronutrient ratios
-from math import ceil
-
-# Define constants for activity multipliers and macronutrient ratios
 ACTIVITY_MULTIPLIERS = {
     "none": 1.2,
     "1-2 times/week": 1.375,

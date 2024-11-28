@@ -44,8 +44,6 @@ window.submitUserDetails = async function () {
                     goal: selections.goal,
                     activity_level: selections.activity
                 });
-
-                alert("User details saved successfully!");
                 window.location.href = "/base"; // Redirect to the main app page
             } else {
                 alert("No user is logged in.");
