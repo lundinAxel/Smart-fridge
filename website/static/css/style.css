@@ -113,12 +113,86 @@ html, body {
 .antena{
     position: absolute;
     z-index: 1;
-    top: -4px;
-    height: 6px;
-    width: 10px;
+    top: -3px;
+    height: 1px;
+    width: 4px;
     right: 45px;
     border: solid;
-    background-color: #ccc;
+    background-color: rgba(0, 0, 0, 0.8);
+}
+.antena1{
+    position: absolute;
+    z-index: 1;
+    top: -3px;
+    height: 1px;
+    width: 4px;
+    left: 45px;
+    border: solid;
+    background-color: rgba(0, 0, 0, 0.8);
+}
+.antena2{
+    position: absolute;
+    z-index: 1;
+    top: 27px;
+    height: 4px;
+    width: 3px;
+    left: 0px;
+    border: solid;
+    border-radius: 70%;
+    background-color: #000000;
+}
+.antena3{
+    position: absolute;
+    z-index: 1;
+    top: 27px;
+    height: 4px;
+    width: 3px;
+    right: 0px;
+    border: solid;
+    border-radius: 70%;
+    background-color: #000000;
+}
+.antena4{
+    position: absolute;
+    z-index: 1;
+    bottom: -3px;
+    height: 1px;
+    width: 4px;
+    right: 45px;
+    border: solid;
+    background-color: #000000;
+}
+.antena5{
+    position: absolute;
+    z-index: 1;
+    bottom: -3px;
+    height: 1px;
+    width: 4px;
+    left: 45px;
+    border: solid;
+    background-color: #000000;
+}
+.antena6{
+    position: absolute;
+    z-index: 1;
+    bottom: 27px;
+    height: 4px;
+    width: 3px;
+    left: 0px;
+    border: solid;
+    border-radius: 70%;
+    background-color: #000000;
+}
+.antena7{
+    position: absolute;
+    z-index: 1;
+    bottom: 27px;
+    height: 4px;
+    width: 3px;
+    right: 0px;
+    border: solid;
+    border-radius: 70%;
+    background-color: #000000;
 }
 /* Updated CSS for positioning */
 .modify-button {
