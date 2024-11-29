@@ -1,25 +1,23 @@
 // Define all your functions first
-function fetchDateData(selectedDate, username = "AleksanderJ") {
-    if (selectedDate && username) {
-        fetch('/fetch_date', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-            },
-            body: `selected_date=${selectedDate}&username=${username}`,
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.error) {
-                console.error(data.error);
-            } else {
-                updateChart(data);
-            }
-        })
-        .catch(error => {
-            console.error('Error fetching data:', error);
-        });
-    }
+function fetchDateData(selectedDate) {
+    fetch('/fetch_date', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: `selected_date=${selectedDate}`,
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.error) {
+            console.error(data.error);
+        } else {
+            updateChart(data);
+        }
+    })
+    .catch(error => {
+        console.error('Error fetching data:', error);
+    });
 }
 
 function updateChart(data) {
@@ -144,7 +142,7 @@ document.addEventListener('DOMContentLoaded', () => {
         dateInput.value = today;
 
         // Fetch data for today's date on page load
-        fetchDateData(today, "AleksanderJ");
+        fetchDateData(today);
 
         // Add an event listener for date changes
         dateInput.addEventListener('change', () => {
@@ -152,7 +150,7 @@ document.addEventListener('DOMContentLoaded', () => {
             console.log("Date changed to:", selectedDate);
 
             // Fetch data for the new selected date
-            fetchDateData(selectedDate, "AleksanderJ");
+            fetchDateData(selectedDate);
         });
     } else {
         console.error("Date input element not found.");
