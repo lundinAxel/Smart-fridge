@@ -285,16 +285,16 @@ input[type="file"] {
 .upload-label {
     display: inline-block;
     cursor: pointer;
-    width: 96px; /* Set the width of your button */
-    height: 96px; /* Set the height of your button */
+    width: 80%; /* Set the width of your button */
+    height: 20%; /* Set the height of your button */
     border-radius: 50%; /* Make it round */
     overflow: hidden; /* Ensure image fits within bounds */
 }
 
 /* Style the image inside the label */
 .upload-image {
-    width: 100%; /* Make the image fill the label */
-    height: 100%;
+    width: 50%; /* Make the image fill the label */
+    height: 50%;
     object-fit: cover; /* Ensure the image maintains aspect ratio */
     transition: transform 0.2s ease-in-out; /* Add hover effect */
 }
@@ -352,21 +352,6 @@ input[type="file"] {
     width: 90%;
     padding: 15px;
     top: 440px;
-    background-color: #0abf53;
-    color: #ffffff;
-    border: none;
-    border-radius: 5px;
-    font-size: 18px;
-    font-weight: bold;
-    cursor: pointer;
-    margin-top: 10px;
-    transition: background-color 0.3s;
-}
-.button4 {
-    position: absolute;
-    width: 80%;
-    padding: 15px;
-    top: 500px;
     background-color: #0abf53;
     color: #ffffff;
     border: none;
@@ -482,15 +467,17 @@ form {
 .chart-container {
     position: absolute;
     top: 150px;
-    width: 90%;
-    max-width: 300px; /* Adjust the max width to fit your layout */
+    align-items: center;
+    width: 90%; /* Adjust the max width to fit your layout */
+    height: 30%;
     margin: 0 auto; /* Center the chart */
 }
 .chart-container1 {
     position: absolute;
     top: 350px;
-    width: 90%;
-    max-width: 300px; /* Adjust the max width to fit your layout */
+    align-items: center;
+    width: 90%; /* Adjust the max width to fit your layout */
+    height: 30%;
     margin: 0 auto; /* Center the chart */
 }
 #dateForm {
@@ -517,4 +504,35 @@ form {
 
 .return-button:hover {
     background-color: #099846;
+}
+.date-picker-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 10px 0;
+    font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif, sans-serif;
+    font-size: 11px;
+    color: #333;
+}
+
+.custom-date-picker {
+    padding: 5px 15px; /* Add padding */
+    font-size: 11px; /* Adjust font size */
+    color: #333; /* Text color */
+    background-color: #f9f9f9; /* Light gray background */
+    border: 1px solid #28a745; /* Green border */
+    border-radius: 9px; /* Rounded corners */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Add subtle shadow */
+    outline: none; /* Remove focus outline */
+    transition: all 0.3s ease-in-out; /* Smooth transitions */
+}
+
+.custom-date-picker:hover {
+    background-color: #e8f5e9; /* Slight green tint on hover */
+    border-color: #218838; /* Darker green border on hover */
+}
+
+.custom-date-picker:focus {
+    border-color: #218838; /* Highlighted green border on focus */
+    box-shadow: 0 0 10px rgba(33, 136, 56, 0.5); /* Add focus shadow */
 }

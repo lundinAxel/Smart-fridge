@@ -1,6 +1,6 @@
 // Define all your functions first
 function fetchDateData(selectedDate) {
-    fetch('/fetch_date', {
+        fetch('/fetch_date', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
@@ -19,6 +19,7 @@ function fetchDateData(selectedDate) {
         console.error('Error fetching data:', error);
     });
 }
+
 
 function updateChart(data) {
     // Update the chart with percentage data
