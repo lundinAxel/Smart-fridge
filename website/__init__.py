@@ -15,7 +15,8 @@ def create_app():
 
     if not firebase_admin._apps:  # Only initialize Firebase once
         try:
-            cred_path = r"C:\Users\Axel\School-Repositories\privatekey\firebaseKey.json"
+            #cred_path = r"C:\Users\Axel\School-Repositories\privatekey\firebaseKey.json"
+            cred_path = r"C:\Users\xlea\OneDrive\Skrivbord\privatekey1.json"
             print(f"Attempting to initialize Firebase with credentials file: {cred_path}")
             
             cred = credentials.Certificate(cred_path)

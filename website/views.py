@@ -156,21 +156,57 @@ def handle_create_user():
         print(f"Error in handle_create_user: {e}")
         return jsonify({"error": "Failed to create user"}), 500
 
-
-
-
-# Updated function in views.py
-@views.route('/predict', methods=['POST'])
+@views.route('/predict', methods=['GET', 'POST'])
 def predict():
-    global calorie_goal, protein_goal, carbs_goal, fat_goal  # Declare global variables
+    global calorie_goal, protein_goal, carbs_goal, fat_goal
 
     # Fetch the user ID from the session
     user_id = session.get('user_id')  # Ensure user_id is stored in the session during login
     if not user_id:
         return jsonify({"error": "User not logged in"}), 401
 
-    if 'file' not in request.files or 'weight' not in request.form:
-        return jsonify({"error": "File or weight not provided"}), 400
+    # Handle GET requests for opening the page with today's data
+    if request.method == 'GET':
+        # Fetch today's date
+        today_date = datetime.now().strftime('%Y-%m-%d')
+
+        # Fetch today's totals
+        try:
+            totals_doc_ref = db.collection("users").document(user_id).collection("daily").document(today_date)
+            totals_doc = totals_doc_ref.get()
+            if totals_doc.exists:
+                totals = totals_doc.to_dict()
+            else:
+                totals = {"total_calories": 0, "total_protein": 0, "total_carbohydrates": 0, "total_fat": 0}
+        except Exception as e:
+            print(f"Error fetching daily totals: {e}")
+            totals = {"total_calories": 0, "total_protein": 0, "total_carbohydrates": 0, "total_fat": 0}
+
+        # Safely fetch today's totals
+        total_calories = totals.get("total_calories", 0)
+        total_protein = totals.get("total_protein", 0)
+        total_carbohydrates = totals.get("total_carbohydrates", 0)
+        total_fat = totals.get("total_fat", 0)
+
+        # Render the prediction result page
+        return render_template(
+            "predict.html",
+            total_calories=total_calories,
+            total_protein=total_protein,
+            total_carbohydrates=total_carbohydrates,
+            total_fat=total_fat,
+            calorie_goal=calorie_goal,
+            protein_goal=protein_goal,
+            carbs_goal=carbs_goal,
+            fat_goal=fat_goal,
+            fruit_name=None,
+            confidence=None
+        )
+
+    # Existing POST logic for predictions
+    if request.method == 'POST':
+        if 'file' not in request.files or 'weight' not in request.form:
+            return jsonify({"error": "File or weight not provided"}), 400
 
     file = request.files['file']
     new_weight = float(request.form['weight'])  # New weight in grams
@@ -471,7 +507,7 @@ def fetch_weekly_calories():
 
         # Define the date range for the last 7 days
         today = datetime.now()
-        dates = [(today - timedelta(days=i)).strftime('%Y-%m-%d') for i in range(7)]
+        dates = [(today - timedelta(days=i)).strftime('%Y-%m-%d') for i in range(6, -1, -1)]
 
         # Fetch calorie data for the last 7 days
         weekly_data = []

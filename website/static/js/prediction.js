@@ -53,10 +53,10 @@ const nutritionChart = new Chart(ctx, {
                 label: 'Total Nutrition Value (%)',
                 data: [0, 0, 0, 0], // Default values
                 backgroundColor: [
-                    'rgba(255, 99, 132, 0.2)',
-                    'rgba(54, 162, 235, 0.2)',
-                    'rgba(75, 192, 192, 0.2)',
-                    'rgba(153, 102, 255, 0.2)'
+                    'rgba(255, 99, 132, 0.6)',
+                    'rgba(54, 162, 235, 0.6)',
+                    'rgba(75, 192, 192, 0.6)',
+                    'rgba(153, 102, 255, 0.6)'
                 ],
                 borderColor: [
                     'rgba(255, 99, 132, 1)',
@@ -72,16 +72,41 @@ const nutritionChart = new Chart(ctx, {
         scales: {
             y: {
                 beginAtZero: true,
-                max: 120,
+                max: 150,
                 title: {
                     display: true,
-                    text: 'Percentage (%)'
+                    text: 'Percentage (%)',
+                    font: {
+                        size: 14, // Increase the font size of the Y-axis title
+                        weight: 'bold', // Make the title bold
+                        family: 'Arial', // Optional: Set the font family
+                    },
+                    color: '#000000' // Change the title color to white
+                },
+                ticks: {
+                    font: {
+                        size: 14, // Increase Y-axis tick font size
+                        weight: 'bold' // Make Y-axis tick labels bold
+                    },
+                    color: '#000000' // Change Y-axis tick label color to white
                 }
             },
             x: {
                 title: {
                     display: true,
-                    text: 'Nutritional Components'
+                    font: {
+                        size: 10, // Increase the font size of the X-axis title
+                        weight: 'bold', // Make the title bold
+                        family: 'Arial', // Optional: Set the font family
+                    },
+                    color: '#000000' // Change the title color to white
+                },
+                ticks: {
+                    font: {
+                        size: 10, // Increase X-axis tick font size
+                        weight: 'bold' // Make X-axis tick labels bold
+                    },
+                    color: '#000000' // Change X-axis tick label color to white
                 }
             }
         },
@@ -109,7 +134,6 @@ const nutritionChart = new Chart(ctx, {
         }
     }
 });
-
 // Use `DOMContentLoaded` at the bottom of the file
 document.addEventListener('DOMContentLoaded', () => {
     const today = new Date().toISOString().split('T')[0];

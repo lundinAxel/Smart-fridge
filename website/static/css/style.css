@@ -362,6 +362,21 @@ input[type="file"] {
     margin-top: 10px;
     transition: background-color 0.3s;
 }
+.button4 {
+    position: absolute;
+    width: 80%;
+    padding: 15px;
+    top: 500px;
+    background-color: #0abf53;
+    color: #ffffff;
+    border: none;
+    border-radius: 5px;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: background-color 0.3s;
+}
 
 .button1 {
     position: absolute;
@@ -466,11 +481,17 @@ form {
 }
 .chart-container {
     position: absolute;
-    top: 180px; /* Place it below the date picker */
-    width: 90%; /* Fit it inside the phone screen */
-    height: auto; /* Let it adapt to its content */
-    z-index: 1; /* Ensure it's visible above other elements */
-    display: flex;
+    top: 150px;
+    width: 90%;
+    max-width: 300px; /* Adjust the max width to fit your layout */
+    margin: 0 auto; /* Center the chart */
+}
+.chart-container1 {
+    position: absolute;
+    top: 350px;
+    width: 90%;
+    max-width: 300px; /* Adjust the max width to fit your layout */
+    margin: 0 auto; /* Center the chart */
 }
 #dateForm {
     position: absolute;
