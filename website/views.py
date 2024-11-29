@@ -461,6 +461,31 @@ def update_user():
         print(f"Unexpected error in update_user: {e}")
         return jsonify({"error": "Failed to update user"}), 500
 
+@views.route('/fetch_weekly_calories', methods=['GET'])
+def fetch_weekly_calories():
+    try:
+        # Get the user's UID from the session
+        user_id = session.get('user_id')
+        if not user_id:
+            return jsonify({"error": "User not logged in"}), 401
+
+        # Define the date range for the last 7 days
+        today = datetime.now()
+        dates = [(today - timedelta(days=i)).strftime('%Y-%m-%d') for i in range(7)]
+
+        # Fetch calorie data for the last 7 days
+        weekly_data = []
+        for date in dates:
+            daily_data = fetch_daily_totals(user_id, date)
+            if daily_data and not daily_data.get("error"):
+                weekly_data.append({"date": date, "total_calories": daily_data["total_calories"]})
+            else:
+                weekly_data.append({"date": date, "total_calories": 0})  # Default to 0 if no data
+
+        return jsonify({"success": True, "data": weekly_data})
+    except Exception as e:
+        print(f"Error fetching weekly calories: {e}")
+        return jsonify({"error": "Failed to fetch weekly data"}), 500
 
 
 

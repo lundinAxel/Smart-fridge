@@ -41,12 +41,17 @@
                         data-fat-goal="{{ fat_goal }}">
                     </canvas>
                 </div>
-            
+
+                <div style="width: 90%; margin: auto; padding: 20px; top: 300px; position: absolute;">
+                    <canvas id="weeklyCalorieChart" width="400" height="200"></canvas>
+                </div>
+
                 <!-- Return Button -->
                 <a href="/base" class="return-button" onclick="window.location.href='/base'">Return</a>
             </div>
         </div>
         <script src="/static/js/auth.js"></script>
         <script src="/static/js/prediction.js" defer></script>
+        <script src="/static/js/chart.js"></script>
     </body>
 </html>

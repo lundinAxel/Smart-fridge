@@ -111,7 +111,6 @@ def fetch_daily_totals(user_id, date):
         if doc.exists:
             return doc.to_dict()
         else:
-            print(f"No data found for user {user_id} on date: {date}")
             return {"total_calories": 0, "total_protein": 0, "total_carbohydrates": 0, "total_fat": 0}
     except Exception as e:
         print(f"Error fetching daily totals from Firebase: {e}")
