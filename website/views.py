@@ -21,7 +21,6 @@ carbs_goal = 200
 fat_goal = 50
 
 # Use the API key
-openai.api_key = "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"
 
 @views.route('/chat', methods=['GET'])
 def chat_page():
