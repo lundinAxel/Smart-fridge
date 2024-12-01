@@ -102,10 +102,10 @@ def chat():
 
         # Use chat.completions.create and handle the response object correctly
         response = openai.chat.completions.create(
-            model="gpt-3.5-turbo",
+            model="gpt-4o",
             messages=messages,
-            max_tokens=450,
-            temperature=0.7
+            max_tokens=1250,
+            temperature=0.5
         )
         print("OpenAI API Response:", response)  # Debug: Print API response
 
