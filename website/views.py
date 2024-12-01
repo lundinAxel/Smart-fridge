@@ -21,6 +21,7 @@ carbs_goal = 200
 fat_goal = 50
 
 # Use the API key
+#write keeey here.
 
 @views.route('/chat', methods=['GET'])
 def chat_page():
