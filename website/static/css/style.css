@@ -285,7 +285,7 @@ input[type="file"] {
 .upload-label {
     display: inline-block;
     cursor: pointer;
-    width: 80%; /* Set the width of your button */
+    width: 70%; /* Set the width of your button */
     height: 20%; /* Set the height of your button */
     border-radius: 50%; /* Make it round */
     overflow: hidden; /* Ensure image fits within bounds */
@@ -368,6 +368,21 @@ input[type="file"] {
     width: 90%;
     padding: 15px;
     top: 500px;
+    background-color: #0abf53;
+    color: #ffffff;
+    border: none;
+    border-radius: 5px;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: background-color 0.3s;
+}
+.button4 {
+    position: absolute;
+    width: 90%;
+    padding: 15px;
+    top: 380px;
     background-color: #0abf53;
     color: #ffffff;
     border: none;
@@ -536,3 +551,27 @@ form {
     border-color: #218838; /* Highlighted green border on focus */
     box-shadow: 0 0 10px rgba(33, 136, 56, 0.5); /* Add focus shadow */
 }
+
+ul {
+    padding-left: 20px;
+    margin: 10px 0;
+}
+
+ul li {
+    margin-bottom: 10px;
+    line-height: 1.6;
+}
+
+.message.ai ul li strong {
+    font-weight: bold;
+    color: #007bff;
+}
+
+.message.ai {
+    background: #f0f8ff;
+    padding: 15px;
+    border-radius: 8px;
+    line-height: 1.6;
+    color: #333;
+}
+

@@ -10,6 +10,8 @@ import subprocess
 import numpy as np 
 import cv2  
 import time
+import openai
+import traceback
 
 views = Blueprint('views', __name__)
 
@@ -17,6 +19,119 @@ calorie_goal = 2000  # Default values
 protein_goal = 150
 carbs_goal = 200
 fat_goal = 50
+
+# Use the API key
+openai.api_key = "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"
+
+@views.route('/chat', methods=['GET'])
+def chat_page():
+    return render_template("chat.html")
+
+def fetch_user_data(user_id):
+    """Fetch user's goals and today's totals from the database."""
+    try:
+        # Fetch user goals
+        user_doc_ref = db.collection("users").document(user_id).collection("goals").document("goal")
+        user_doc = user_doc_ref.get()
+        if user_doc.exists:
+            user_goals = user_doc.to_dict()
+        else:
+            raise ValueError("User goals not found.")
+
+        # Fetch today's totals
+        today_date = datetime.now().strftime('%Y-%m-%d')
+        totals_doc_ref = db.collection("users").document(user_id).collection("daily").document(today_date)
+        totals_doc = totals_doc_ref.get()
+        if totals_doc.exists:
+            daily_totals = totals_doc.to_dict()
+        else:
+            daily_totals = {"total_calories": 0, "total_protein": 0, "total_carbohydrates": 0, "total_fat": 0}
+
+        return {"goals": user_goals, "totals": daily_totals}
+
+    except Exception as e:
+        print(f"Error fetching user data: {e}")
+        return {"error": str(e)}
+    
+@views.route('/chat', methods=['POST'])
+def chat():
+    print("Loaded OpenAI API Key:", openai.api_key)
+    try:
+        # Fetch user ID from session
+        user_id = session.get('user_id')
+        print("User ID:", user_id)  # Debug: Check if user_id exists
+        if not user_id:
+            return jsonify({"error": "User not logged in"}), 401
+
+        # Fetch user data
+        user_data = fetch_user_data(user_id)
+        print("Fetched User Data:", user_data)  # Debug: Print user data
+        if "error" in user_data:
+            print("Error Fetching User Data:", user_data["error"])
+            return jsonify({"error": user_data["error"]}), 500
+
+        # Extract goals and totals
+        user_goals = user_data["goals"]
+        user_totals = user_data["totals"]
+        print("User Goals:", user_goals)  # Debug: Check goals
+        print("User Totals:", user_totals)  # Debug: Check totals
+
+        # Get the user's message
+        user_message = request.json.get("message")
+        print("User Message:", user_message)  # Debug: Check user message
+        if not user_message:
+            print("Error: No message provided.")
+            return jsonify({"error": "No message provided"}), 400
+
+        # Prepare OpenAI prompt
+        context = (
+            f"User's nutritional data:\n"
+            f"Total Calories: {user_totals['total_calories']}/{user_goals['calorie_goal']} kcal\n"
+            f"Protein: {user_totals['total_protein']}/{user_goals['protein_g']} g\n"
+            f"Carbs: {user_totals['total_carbohydrates']}/{user_goals['carbs_g']} g\n"
+            f"Fat: {user_totals['total_fat']}/{user_goals['fat_g']} g\n\n"
+            "Based on the current deficits or surplus, recommend meals or snacks."
+        )
+        print("OpenAI Context:", context)  # Debug: Check OpenAI context
+
+        # Call OpenAI API
+        messages = [
+            {"role": "system", "content": "plan my next meal from the nutriotions i had"},
+            {"role": "user", "content": context}
+        ]
+
+        # Use chat.completions.create and handle the response object correctly
+        response = openai.chat.completions.create(
+            model="gpt-3.5-turbo",
+            messages=messages,
+            max_tokens=450,
+            temperature=0.7
+        )
+        print("OpenAI API Response:", response)  # Debug: Print API response
+
+        # Properly extract the message content from the response
+        # Process the response message
+        raw_message = response.choices[0].message.content
+
+        # Replace line breaks in the original message with `<br>` tags
+        formatted_message = raw_message.replace("\n", "<br>")
+
+        # Assign the formatted message to assistant_message
+        assistant_message = formatted_message
+
+
+
+
+        # Return the extracted content as JSON to the frontend
+        return jsonify({"response": assistant_message})
+
+    except Exception as e:
+        print("Error Traceback:", traceback.format_exc())
+        return jsonify({"error": f"Failed to process your request: {str(e)}"}), 500
+
+
+
+
 
 def extract_frames(video_path, interval=1, output_dir="output_frames"):
     # Create the output directory if it doesn't exist
@@ -500,17 +615,16 @@ def update_user():
 @views.route('/fetch_weekly_calories', methods=['GET'])
 def fetch_weekly_calories():
     try:
-        # Get the user's UID from the session
+        # Get the user's ID from the session
         user_id = session.get('user_id')
         if not user_id:
             return jsonify({"error": "User not logged in"}), 401
 
-        # Define the date range for the last 7 days
+        # Fetch calorie data for the past 7 days
         today = datetime.now()
         dates = [(today - timedelta(days=i)).strftime('%Y-%m-%d') for i in range(6, -1, -1)]
-
-        # Fetch calorie data for the last 7 days
         weekly_data = []
+
         for date in dates:
             daily_data = fetch_daily_totals(user_id, date)
             if daily_data and not daily_data.get("error"):
@@ -519,16 +633,19 @@ def fetch_weekly_calories():
                 weekly_data.append({"date": date, "total_calories": 0})  # Default to 0 if no data
 
         # Fetch user calorie goal
-        user_doc_ref = db.collection("users").document(user_id).collection("goals").document("goal")
-        user_doc = user_doc_ref.get()
-        calorie_goal = user_doc.to_dict().get('calorie_goal', 2000) if user_doc.exists else 2000
-        
-        # Return data including calorie goal
+        user_data = fetch_user_data(user_id)
+        if "error" in user_data:
+            return jsonify({"error": user_data["error"]}), 500
+
+        calorie_goal = user_data["goals"].get("calorie_goal", 2000)
+
+        # Return weekly data with calorie goal
         return jsonify({
             "success": True,
-            "data": weekly_data,  # Existing weekly data
-            "calorie_goal": calorie_goal  # Add calorie goal
+            "data": weekly_data,
+            "calorie_goal": calorie_goal
         })
+
     except Exception as e:
         print(f"Error fetching weekly calories: {e}")
         return jsonify({"error": "Failed to fetch weekly data"}), 500

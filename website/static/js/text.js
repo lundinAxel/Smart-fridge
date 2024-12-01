@@ -1,6 +1,5 @@
 document.getElementById('fileUpload').addEventListener('change', function () {
     const uploadMessage = document.getElementById('uploadMessage');
-    alert("running this");
     
     // Check if a file is selected
     if (this.files && this.files.length > 0) {

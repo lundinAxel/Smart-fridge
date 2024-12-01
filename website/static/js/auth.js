@@ -68,7 +68,6 @@ function logout() {
 
 // Function for user registration
 window.createAccount = function() {
-    alert("click!")
     console.log("Register function called");
     const email = document.getElementById("email").value;
     const password = document.getElementById("password").value;

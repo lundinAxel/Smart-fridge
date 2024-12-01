@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meal Recommendation Chat</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <div class="chat-container">
+        <h1>Meal Recommendation Chat</h1>
+        <div id="chat-box">
+            <div id="messages"></div>
+        </div>
+        <div class="input-container">
+            <input type="text" id="user-input" placeholder="Ask for meal recommendations..." autofocus>
+            <button onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+    <script>
+        async function sendMessage() {
+            const userMessage = document.getElementById("user-input").value.trim();
+            if (!userMessage) return;
+
+            // Display the user's message in the chat box
+            const chatBox = document.getElementById("messages");
+            const userMessageDiv = document.createElement("div");
+            userMessageDiv.className = "message user";
+            userMessageDiv.textContent = userMessage;
+            chatBox.appendChild(userMessageDiv);
+
+            // Clear input field
+            document.getElementById("user-input").value = "";
+
+            // Send message to the backend
+            try {
+                const response = await fetch('/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: userMessage }),
+                });
+                const data = await response.json();
+
+                // Display Chatai's response using innerHTML to render any HTML tags
+                const chataiResponseDiv = document.createElement("div");
+                chataiResponseDiv.className = "message ai";
+                chataiResponseDiv.innerHTML = data.response || "<p>Sorry, I couldn't process your request.</p>";
+                chatBox.appendChild(chataiResponseDiv);
+
+                // Scroll to the latest message
+                chatBox.scrollTop = chatBox.scrollHeight;
+            } catch (error) {
+                console.error("Error:", error);
+
+                // Show an error message if the request fails
+                const errorDiv = document.createElement("div");
+                errorDiv.className = "message ai";
+                errorDiv.textContent = "An error occurred. Please try again.";
+                chatBox.appendChild(errorDiv);
+            }
+        }
+    </script>
+    <style>
+        .chat-container {
+            max-width: 600px;
+            margin: auto;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+        }
+        h1 {
+            text-align: center;
+        }
+        #chat-box {
+            border: 1px solid #ccc;
+            padding: 10px;
+            max-height: 500px;
+            overflow-y: auto;
+            background-color: #f9f9f9;
+        }
+        .input-container {
+            display: flex;
+            margin-top: 10px;
+        }
+        #user-input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            padding: 10px 20px;
+            background: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .message {
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            line-height: 1.5;
+        }
+        .user {
+            background: #d1e7dd;
+            text-align: right;
+            margin-left: auto;
+        }
+        .ai {
+            background: #f8d7da;
+            text-align: left;
+            margin-right: auto;
+        }
+    </style>
+</body>
+</html>
