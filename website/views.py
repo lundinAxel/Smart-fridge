@@ -518,7 +518,17 @@ def fetch_weekly_calories():
             else:
                 weekly_data.append({"date": date, "total_calories": 0})  # Default to 0 if no data
 
-        return jsonify({"success": True, "data": weekly_data})
+        # Fetch user calorie goal
+        user_doc_ref = db.collection("users").document(user_id).collection("goals").document("goal")
+        user_doc = user_doc_ref.get()
+        calorie_goal = user_doc.to_dict().get('calorie_goal', 2000) if user_doc.exists else 2000
+        
+        # Return data including calorie goal
+        return jsonify({
+            "success": True,
+            "data": weekly_data,  # Existing weekly data
+            "calorie_goal": calorie_goal  # Add calorie goal
+        })
     except Exception as e:
         print(f"Error fetching weekly calories: {e}")
         return jsonify({"error": "Failed to fetch weekly data"}), 500

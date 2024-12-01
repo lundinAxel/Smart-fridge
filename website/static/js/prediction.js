@@ -80,14 +80,14 @@ const nutritionChart = new Chart(ctx, {
                         weight: 'bold', // Make the title bold
                         family: 'Arial', // Optional: Set the font family
                     },
-                    color: '#000000' // Change the title color to white
+                    color: '#000000' // Change the title color to black
                 },
                 ticks: {
                     font: {
                         size: 14, // Increase Y-axis tick font size
                         weight: 'bold' // Make Y-axis tick labels bold
                     },
-                    color: '#000000' // Change Y-axis tick label color to white
+                    color: '#000000' // Change Y-axis tick label color to black
                 }
             },
             x: {
@@ -98,14 +98,14 @@ const nutritionChart = new Chart(ctx, {
                         weight: 'bold', // Make the title bold
                         family: 'Arial', // Optional: Set the font family
                     },
-                    color: '#000000' // Change the title color to white
+                    color: '#000000' // Change the title color to black
                 },
                 ticks: {
                     font: {
                         size: 10, // Increase X-axis tick font size
                         weight: 'bold' // Make X-axis tick labels bold
                     },
-                    color: '#000000' // Change X-axis tick label color to white
+                    color: '#000000' // Change X-axis tick label color to black
                 }
             }
         },
@@ -129,10 +129,35 @@ const nutritionChart = new Chart(ctx, {
                         ];
                     }
                 }
+            },
+            annotation: {
+                annotations: {
+                    dottedLineAt100: {
+                        type: 'line',
+                        yMin: 100, // Position at 100%
+                        yMax: 100,
+                        borderColor: 'rgba(255, 0, 0, 0.8)', // Red color for the line
+                        borderWidth: 2,
+                        borderDash: [5, 5], // Dotted style
+                        label: {
+                            enabled: true,
+                            content: '100%',
+                            position: 'end',
+                            backgroundColor: 'rgba(255, 0, 0, 0.8)',
+                            color: '#fff',
+                            font: {
+                                size: 10, // Font size for annotation label
+                                style: 'bold', // Bold font style for annotation label
+                                family: 'Arial', // Optional: Set font family for annotation
+                            }
+                        }
+                    }
+                }
             }
         }
     }
 });
+
 // Use `DOMContentLoaded` at the bottom of the file
 document.addEventListener('DOMContentLoaded', () => {
     const today = new Date().toISOString().split('T')[0];

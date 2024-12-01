@@ -4,7 +4,9 @@ document.addEventListener('DOMContentLoaded', () => {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                renderChart(data.data); // Pass the data to renderChart function
+                const calorieGoal = data.calorie_goal; // Fetch the calorie goal dynamically
+                renderChart(data.data, calorieGoal); // Pass the data and calorie goal to renderChart function
+                console.log("Calorie Goal Fetched:", calorieGoal)
             } else {
                 console.error("Error fetching weekly calories:", data.error);
                 alert("Failed to load weekly data.");
@@ -16,7 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 });
 
-function renderChart(weeklyData) {
+function renderChart(weeklyData, calorieGoal) {
     const labels = weeklyData.map(item => item.date); // Dates for the x-axis
     const calories = weeklyData.map(item => item.total_calories); // Calories for the y-axis
 
@@ -79,18 +81,20 @@ function renderChart(weeklyData) {
             plugins: {
                 annotation: {
                     annotations: {
-                        lineAtZero: {
+                        calorieGoalLine: {
                             type: 'line',
-                            yMin: 0,
-                            yMax: 0,
-                            borderColor: 'rgba(255, 0, 0, 0.8)', // Red color for the line
+                            yMin: calorieGoal, // Position at calorie goal
+                            yMax: calorieGoal,
+                            xMin: 0, // Start from the first x-axis label
+                            xMax: labels.length - 1, // Extend to the last x-axis label
+                            borderColor: 'rgba(0, 255, 0, 0.8)', // Green color for the line
                             borderWidth: 2,
-                            borderDash: [5, 5], // Dotted line
+                            borderDash: [5, 5], // Dotted style
                             label: {
                                 enabled: true,
-                                content: '0 Calories',
+                                content: `${calorieGoal} kcal`, // Show calorie goal as label
                                 position: 'end',
-                                backgroundColor: 'rgba(255, 0, 0, 0.8)',
+                                backgroundColor: 'rgba(0, 255, 0, 0.8)',
                                 color: '#fff',
                                 font: {
                                     size: 10, // Font size for annotation label
@@ -105,6 +109,3 @@ function renderChart(weeklyData) {
         }
     });
 }
-
-
-
