@@ -2,14 +2,11 @@
 from flask import Blueprint, render_template, request, redirect, url_for, jsonify
 from .models import *
 from .firebase import *
-from . import db  # Import the Firestore client
+from . import db
 from datetime import datetime
 import os 
-import mimetypes
-import subprocess
 import numpy as np 
 import cv2  
-import time
 import openai
 import traceback
 
@@ -20,9 +17,9 @@ protein_goal = 150
 carbs_goal = 200
 fat_goal = 50
 
-# Use the API key
-#write keeey here.
+# Use the API key for ChatGpt Ai
 
+#openai.api_key = write keeey here.
 @views.route('/chat', methods=['GET'])
 def chat_page():
     return render_template("chat.html")
@@ -52,86 +49,67 @@ def fetch_user_data(user_id):
     except Exception as e:
         print(f"Error fetching user data: {e}")
         return {"error": str(e)}
-    
+
 @views.route('/chat', methods=['POST'])
 def chat():
-    print("Loaded OpenAI API Key:", openai.api_key)
     try:
-        # Fetch user ID from session
         user_id = session.get('user_id')
-        print("User ID:", user_id)  # Debug: Check if user_id exists
         if not user_id:
             return jsonify({"error": "User not logged in"}), 401
 
-        # Fetch user data
+        # Simulate user data retrieval (replace with actual database logic)
         user_data = fetch_user_data(user_id)
-        print("Fetched User Data:", user_data)  # Debug: Print user data
         if "error" in user_data:
-            print("Error Fetching User Data:", user_data["error"])
             return jsonify({"error": user_data["error"]}), 500
 
-        # Extract goals and totals
         user_goals = user_data["goals"]
         user_totals = user_data["totals"]
-        print("User Goals:", user_goals)  # Debug: Check goals
-        print("User Totals:", user_totals)  # Debug: Check totals
 
-        # Get the user's message
         user_message = request.json.get("message")
-        print("User Message:", user_message)  # Debug: Check user message
         if not user_message:
-            print("Error: No message provided.")
             return jsonify({"error": "No message provided"}), 400
 
-        # Prepare OpenAI prompt
-        context = (
-            f"User's nutritional data:\n"
-            f"Total Calories: {user_totals['total_calories']}/{user_goals['calorie_goal']} kcal\n"
-            f"Protein: {user_totals['total_protein']}/{user_goals['protein_g']} g\n"
-            f"Carbs: {user_totals['total_carbohydrates']}/{user_goals['carbs_g']} g\n"
-            f"Fat: {user_totals['total_fat']}/{user_goals['fat_g']} g\n\n"
-            "Based on the current deficits or surplus, recommend meals or snacks."
-        )
-        print("OpenAI Context:", context)  # Debug: Check OpenAI context
+        current_time = datetime.now().strftime("%H:%M")
 
-        # Call OpenAI API
+        # Construct OpenAI prompt
+        # Construct OpenAI prompt
+        context = (
+            f"User's nutritional data as of {current_time}:\n"
+            f"Total Calories: {user_totals['total_calories']} / {user_goals['calorie_goal']} kcal\n"
+            f"Protein: {user_totals['total_protein']} g / {user_goals['protein_g']} g\n"
+            f"Carbs: {user_totals['total_carbohydrates']} g / {user_goals['carbs_g']} g\n"
+            f"Fat: {user_totals['total_fat']} g / {user_goals['fat_g']} g\n\n"
+            "Today's remaining intake:\n"
+            f"Calories: {user_goals['calorie_goal'] - user_totals['total_calories']} kcal\n"
+            f"Protein: {user_goals['protein_g'] - user_totals['total_protein']} g\n"
+            f"Carbs: {user_goals['carbs_g'] - user_totals['total_carbohydrates']} g\n"
+            f"Fat: {user_goals['fat_g'] - user_totals['total_fat']} g\n\n"
+            f"It's currently {current_time}. The user has asked: \"{user_message}\". "
+            "Respond with answer to message, and if asked recommend meals or snacks, considering the user's goals and remaining intake."
+        )
+
+        # Prepare OpenAI messages
         messages = [
-            {"role": "system", "content": "plan my next meal from the nutriotions i had"},
-            {"role": "user", "content": context}
+            {"role": "system", "content": "You are a nutrition assistant who helps users meet their dietary goals. but you can also act like a chatbot refering to the message sent."},
+            {"role": "user", "content": context},
         ]
 
-        # Use chat.completions.create and handle the response object correctly
+
         response = openai.chat.completions.create(
             model="gpt-4o",
             messages=messages,
-            max_tokens=1250,
+            max_tokens=2500,
             temperature=0.5
         )
-        print("OpenAI API Response:", response)  # Debug: Print API response
-
-        # Properly extract the message content from the response
-        # Process the response message
+        
+        # Extract and format response
         raw_message = response.choices[0].message.content
-
-        # Replace line breaks in the original message with `<br>` tags
         formatted_message = raw_message.replace("\n", "<br>")
-
-        # Assign the formatted message to assistant_message
-        assistant_message = formatted_message
-
-
-
-
-        # Return the extracted content as JSON to the frontend
-        return jsonify({"response": assistant_message})
+        return jsonify({"response": formatted_message})
 
     except Exception as e:
         print("Error Traceback:", traceback.format_exc())
         return jsonify({"error": f"Failed to process your request: {str(e)}"}), 500
-
-
-
-
 
 def extract_frames(video_path, interval=1, output_dir="output_frames"):
     # Create the output directory if it doesn't exist
@@ -626,7 +604,7 @@ def fetch_weekly_calories():
         weekly_data = []
 
         for date in dates:
-            daily_data = fetch_daily_totals(user_id, date)
+            daily_data = fetch_daily_data(user_id, date)
             if daily_data and not daily_data.get("error"):
                 weekly_data.append({"date": date, "total_calories": daily_data["total_calories"]})
             else:

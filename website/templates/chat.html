@@ -3,45 +3,53 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Meal Recommendation Chat</title>
+    <title>Fitness AI Chat</title>
     <link rel="stylesheet" href="/static/css/style.css">
 </head>
 <body>
     <div class="chat-container">
-        <h1>Meal Recommendation Chat</h1>
+        <h1>Fitness AI Chat</h1>
         <div id="chat-box">
             <div id="messages"></div>
         </div>
         <div class="input-container">
+            <!-- Input for user's message -->
             <input type="text" id="user-input" placeholder="Ask for meal recommendations..." autofocus>
-            <button onclick="sendMessage()">Send</button>
+            <!-- Button to send the message -->
+            <button id="send-button">Send</button>
         </div>
     </div>
     <script>
+        // Fetch the button and input field
+        const sendButton = document.getElementById("send-button");
+        const userInput = document.getElementById("user-input");
+        const chatBox = document.getElementById("messages");
+
+        // Function to send the message
         async function sendMessage() {
-            const userMessage = document.getElementById("user-input").value.trim();
+            const userMessage = userInput.value.trim(); // Get the input message
             if (!userMessage) return;
 
             // Display the user's message in the chat box
-            const chatBox = document.getElementById("messages");
             const userMessageDiv = document.createElement("div");
             userMessageDiv.className = "message user";
             userMessageDiv.textContent = userMessage;
             chatBox.appendChild(userMessageDiv);
 
-            // Clear input field
-            document.getElementById("user-input").value = "";
+            // Clear the input field
+            userInput.value = "";
 
-            // Send message to the backend
+            // Send the message to the backend
             try {
                 const response = await fetch('/chat', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ message: userMessage }),
                 });
+
                 const data = await response.json();
 
-                // Display Chatai's response using innerHTML to render any HTML tags
+                // Display the bot's response
                 const chataiResponseDiv = document.createElement("div");
                 chataiResponseDiv.className = "message ai";
                 chataiResponseDiv.innerHTML = data.response || "<p>Sorry, I couldn't process your request.</p>";
@@ -59,6 +67,16 @@
                 chatBox.appendChild(errorDiv);
             }
         }
+
+        // Add an event listener to the button
+        sendButton.addEventListener("click", sendMessage);
+
+        // Optionally allow pressing "Enter" to send the message
+        userInput.addEventListener("keydown", (event) => {
+            if (event.key === "Enter") {
+                sendMessage();
+            }
+        });
     </script>
     <style>
         .chat-container {

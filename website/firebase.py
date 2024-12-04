@@ -102,16 +102,3 @@ def fetch_daily_data(user_id, date):
         print(f"Error fetching daily data: {e}")
         return None
 
-
-
-def fetch_daily_totals(user_id, date):
-    try:
-        totals_doc_ref = db.collection("users").document(user_id).collection("daily").document(date)
-        doc = totals_doc_ref.get()
-        if doc.exists:
-            return doc.to_dict()
-        else:
-            return {"total_calories": 0, "total_protein": 0, "total_carbohydrates": 0, "total_fat": 0}
-    except Exception as e:
-        print(f"Error fetching daily totals from Firebase: {e}")
-        return {"error": "Error fetching data"}
