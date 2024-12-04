@@ -19,7 +19,7 @@ fat_goal = 50
 
 # Use the API key for ChatGpt Ai
 
-#openai.api_key = write keeey here.
+openai.api_key = "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"
 @views.route('/chat', methods=['GET'])
 def chat_page():
     return render_template("chat.html")
@@ -49,6 +49,92 @@ def fetch_user_data(user_id):
     except Exception as e:
         print(f"Error fetching user data: {e}")
         return {"error": str(e)}
+    
+@views.route('/voice-chat', methods=['POST'])
+def voice_chat():
+    try:
+        user_id = session.get('user_id')
+        if not user_id:
+            return jsonify({"error": "User not logged in"}), 401
+
+        # Simulate user data retrieval (replace with actual database logic)
+        user_data = fetch_user_data(user_id)
+        if "error" in user_data:
+            return jsonify({"error": user_data["error"]}), 500
+
+        user_goals = user_data["goals"]
+        user_totals = user_data["totals"]
+
+        # Get the uploaded audio file
+        audio_file = request.files.get('audio')
+        if not audio_file:
+            return jsonify({"error": "No audio file provided"}), 400
+
+        # Save the audio file for debugging
+        timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
+        audio_file_path = os.path.join("uploads", f"recording_{timestamp}.wav")
+        os.makedirs("uploads", exist_ok=True)
+        audio_file.save(audio_file_path)
+
+        # Transcribe the audio file (Older method)
+        transcription = openai.audio.transcriptions.create(
+            model="whisper-1",
+            file=open(audio_file_path, "rb")
+        )
+        print(f"Transcription output: {transcription}")  # Log full transcription response
+
+        # Access the transcribed text directly
+        user_message = transcription.text
+
+        if not user_message:
+            raise ValueError("Transcription failed or returned empty text.")
+
+        print(f"User message: {user_message}")  # Log the extracted text
+
+        current_time = datetime.now().strftime("%H:%M")
+
+        # Construct OpenAI prompt
+        # Construct OpenAI prompt
+        context = (
+            f"User's nutritional data as of {current_time}:\n"
+            f"Total Calories: {user_totals['total_calories']} / {user_goals['calorie_goal']} kcal\n"
+            f"Protein: {user_totals['total_protein']} g / {user_goals['protein_g']} g\n"
+            f"Carbs: {user_totals['total_carbohydrates']} g / {user_goals['carbs_g']} g\n"
+            f"Fat: {user_totals['total_fat']} g / {user_goals['fat_g']} g\n\n"
+            "Today's remaining intake:\n"
+            f"Calories: {user_goals['calorie_goal'] - user_totals['total_calories']} kcal\n"
+            f"Protein: {user_goals['protein_g'] - user_totals['total_protein']} g\n"
+            f"Carbs: {user_goals['carbs_g'] - user_totals['total_carbohydrates']} g\n"
+            f"Fat: {user_goals['fat_g'] - user_totals['total_fat']} g\n\n"
+            f"It's currently {current_time}. The user has asked: \"{user_message}\". "
+            "Respond with answer to message, and if asked recommend meals or snacks, considering the user's goals and remaining intake."
+        )
+
+        # Prepare OpenAI messages
+        messages = [
+            {"role": "system", "content": "You are a nutrition assistant who helps users meet their dietary goals. but you can also act like a chatbot refering to the message sent."},
+            {"role": "user", "content": context},
+        ]
+
+        # Send the transcription to OpenAI Chat
+        response = openai.chat.completions.create(
+            model="gpt-4o",
+            messages=messages,
+            max_tokens=2500,
+            temperature=0.5
+        )
+        
+        # Extract and format response
+        raw_message = response.choices[0].message.content
+        formatted_message = raw_message.replace("\n", "<br>")
+        print(f"User message: {raw_message}")
+        return jsonify({"response": formatted_message})
+
+    except Exception as e:
+        traceback.print_exc()  # Print the full error traceback in the console
+        return jsonify({"error": str(e)}), 500
+
+
 
 @views.route('/chat', methods=['POST'])
 def chat():

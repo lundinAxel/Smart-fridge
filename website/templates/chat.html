@@ -13,6 +13,8 @@
             <div id="messages"></div>
         </div>
         <div class="input-container">
+            <!-- Recording button -->
+            <button id="record-button">🎤 Record</button>
             <!-- Input for user's message -->
             <input type="text" id="user-input" placeholder="Ask for meal recommendations..." autofocus>
             <!-- Button to send the message -->
@@ -20,14 +22,65 @@
         </div>
     </div>
     <script>
-        // Fetch the button and input field
+        // Fetch the buttons and input field
+        const recordButton = document.getElementById("record-button");
         const sendButton = document.getElementById("send-button");
         const userInput = document.getElementById("user-input");
         const chatBox = document.getElementById("messages");
 
+        let mediaRecorder;
+        let audioChunks = [];
+
+        // Function to handle recording
+        recordButton.addEventListener("click", async () => {
+            if (!mediaRecorder || mediaRecorder.state === "inactive") {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                mediaRecorder = new MediaRecorder(stream);
+
+                mediaRecorder.ondataavailable = (event) => audioChunks.push(event.data);
+                mediaRecorder.onstop = async () => {
+                    const audioBlob = new Blob(audioChunks, { type: "audio/wav" });
+                    const formData = new FormData();
+                    formData.append("audio", audioBlob);
+
+                    try {
+                        // Send the audio to the backend
+                        const response = await fetch("/voice-chat", {
+                            method: "POST",
+                            body: formData,
+                        });
+
+                        const data = await response.json();
+
+                        // Display the bot's response
+                        const chataiResponseDiv = document.createElement("div");
+                        chataiResponseDiv.className = "message ai";
+                        chataiResponseDiv.innerHTML = data.response || "<p>Sorry, I couldn't process your request.</p>";
+                        chatBox.appendChild(chataiResponseDiv);
+                        chatBox.scrollTop = chatBox.scrollHeight;
+                    } catch (error) {
+                        console.error("Error:", error);
+
+                        // Show an error message
+                        const errorDiv = document.createElement("div");
+                        errorDiv.className = "message ai";
+                        errorDiv.textContent = "An error occurred. Please try again.";
+                        chatBox.appendChild(errorDiv);
+                    }
+                };
+
+                audioChunks = [];
+                mediaRecorder.start();
+                recordButton.textContent = "🔴 Recording...";
+            } else {
+                mediaRecorder.stop();
+                recordButton.textContent = "🎤 Record";
+            }
+        });
+
         // Function to send the message
         async function sendMessage() {
-            const userMessage = userInput.value.trim(); // Get the input message
+            const userMessage = userInput.value.trim();
             if (!userMessage) return;
 
             // Display the user's message in the chat box
@@ -68,7 +121,7 @@
             }
         }
 
-        // Add an event listener to the button
+        // Add an event listener to the send button
         sendButton.addEventListener("click", sendMessage);
 
         // Optionally allow pressing "Enter" to send the message
