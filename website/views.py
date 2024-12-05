@@ -1,8 +1,9 @@
 # type: ignore
-from flask import Blueprint, render_template, request, redirect, url_for, jsonify
+from flask import Blueprint, render_template, request, redirect, url_for, jsonify, session
 from .models import *
 from .firebase import *
 from . import db
+from .calculateIndv import *
 from datetime import datetime
 import os 
 import numpy as np 
@@ -19,120 +20,43 @@ fat_goal = 50
 
 # Use the API key for ChatGpt Ai
 
-openai.api_key = "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"
+#openai.api_key =
 @views.route('/chat', methods=['GET'])
 def chat_page():
     return render_template("chat.html")
-
-def fetch_user_data(user_id):
-    """Fetch user's goals and today's totals from the database."""
-    try:
-        # Fetch user goals
-        user_doc_ref = db.collection("users").document(user_id).collection("goals").document("goal")
-        user_doc = user_doc_ref.get()
-        if user_doc.exists:
-            user_goals = user_doc.to_dict()
-        else:
-            raise ValueError("User goals not found.")
-
-        # Fetch today's totals
-        today_date = datetime.now().strftime('%Y-%m-%d')
-        totals_doc_ref = db.collection("users").document(user_id).collection("daily").document(today_date)
-        totals_doc = totals_doc_ref.get()
-        if totals_doc.exists:
-            daily_totals = totals_doc.to_dict()
-        else:
-            daily_totals = {"total_calories": 0, "total_protein": 0, "total_carbohydrates": 0, "total_fat": 0}
-
-        return {"goals": user_goals, "totals": daily_totals}
-
-    except Exception as e:
-        print(f"Error fetching user data: {e}")
-        return {"error": str(e)}
     
 @views.route('/voice-chat', methods=['POST'])
 def voice_chat():
     try:
-        user_id = session.get('user_id')
-        if not user_id:
-            return jsonify({"error": "User not logged in"}), 401
-
-        # Simulate user data retrieval (replace with actual database logic)
-        user_data = fetch_user_data(user_id)
-        if "error" in user_data:
-            return jsonify({"error": user_data["error"]}), 500
-
-        user_goals = user_data["goals"]
-        user_totals = user_data["totals"]
-
         # Get the uploaded audio file
         audio_file = request.files.get('audio')
         if not audio_file:
             return jsonify({"error": "No audio file provided"}), 400
 
-        # Save the audio file for debugging
+        # Save the audio file temporarily
         timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
         audio_file_path = os.path.join("uploads", f"recording_{timestamp}.wav")
         os.makedirs("uploads", exist_ok=True)
         audio_file.save(audio_file_path)
 
-        # Transcribe the audio file (Older method)
+        # Transcribe the audio file
         transcription = openai.audio.transcriptions.create(
             model="whisper-1",
             file=open(audio_file_path, "rb")
         )
-        print(f"Transcription output: {transcription}")  # Log full transcription response
 
-        # Access the transcribed text directly
+        # Extract the transcribed text
         user_message = transcription.text
-
         if not user_message:
-            raise ValueError("Transcription failed or returned empty text.")
+            return jsonify({"error": "Transcription failed"}), 400
 
-        print(f"User message: {user_message}")  # Log the extracted text
-
-        current_time = datetime.now().strftime("%H:%M")
-
-        # Construct OpenAI prompt
-        # Construct OpenAI prompt
-        context = (
-            f"User's nutritional data as of {current_time}:\n"
-            f"Total Calories: {user_totals['total_calories']} / {user_goals['calorie_goal']} kcal\n"
-            f"Protein: {user_totals['total_protein']} g / {user_goals['protein_g']} g\n"
-            f"Carbs: {user_totals['total_carbohydrates']} g / {user_goals['carbs_g']} g\n"
-            f"Fat: {user_totals['total_fat']} g / {user_goals['fat_g']} g\n\n"
-            "Today's remaining intake:\n"
-            f"Calories: {user_goals['calorie_goal'] - user_totals['total_calories']} kcal\n"
-            f"Protein: {user_goals['protein_g'] - user_totals['total_protein']} g\n"
-            f"Carbs: {user_goals['carbs_g'] - user_totals['total_carbohydrates']} g\n"
-            f"Fat: {user_goals['fat_g'] - user_totals['total_fat']} g\n\n"
-            f"It's currently {current_time}. The user has asked: \"{user_message}\". "
-            "Respond with answer to message, and if asked recommend meals or snacks, considering the user's goals and remaining intake."
-        )
-
-        # Prepare OpenAI messages
-        messages = [
-            {"role": "system", "content": "You are a nutrition assistant who helps users meet their dietary goals. but you can also act like a chatbot refering to the message sent."},
-            {"role": "user", "content": context},
-        ]
-
-        # Send the transcription to OpenAI Chat
-        response = openai.chat.completions.create(
-            model="gpt-4o",
-            messages=messages,
-            max_tokens=2500,
-            temperature=0.5
-        )
-        
-        # Extract and format response
-        raw_message = response.choices[0].message.content
-        formatted_message = raw_message.replace("\n", "<br>")
-        print(f"User message: {raw_message}")
-        return jsonify({"response": formatted_message})
+        print(f"Transcript: {user_message}")
+        return jsonify({"transcript": user_message})  # Return only the transcript
 
     except Exception as e:
-        traceback.print_exc()  # Print the full error traceback in the console
+        print(f"Error in voice_chat: {e}")
         return jsonify({"error": str(e)}), 500
+
 
 
 
@@ -236,9 +160,6 @@ def home():
 def login():
     return render_template("login.html")
 
-# Route to handle login button click
-from flask import request, jsonify, session
-
 @views.route('/login', methods=['POST'])
 def handle_login():
     # Get UID from the frontend request
@@ -276,9 +197,6 @@ def create_user():
 def modify_user():
     return render_template("modifyUser.html")
 
-# Route to handle create user button click in userReg
-from .calculateIndv import calculate_bmr, calculate_tdee, calculate_macros  # Import calculation functions
-
 @views.route('/createUser', methods=['POST'])
 def handle_create_user():
     try:
@@ -299,9 +217,6 @@ def handle_create_user():
         # Validate inputs
         if not all([age, height, weight, gender, goal, activity]):
             return jsonify({"error": "All fields are required"}), 400
-
-        # Calculate user goals
-        from .calculateIndv import calculate_bmr, calculate_tdee, calculate_macros
 
         bmr = calculate_bmr(gender, age, height, weight)
         tdee = calculate_tdee(bmr, activity)
@@ -325,7 +240,6 @@ def handle_create_user():
         }
 
         # Store user goals in Firebase using the store_user_goals function
-        from .firebase import store_user_goals
         store_user_goals(user_id, goals_data)
 
         # Redirect to the base page or a success page
@@ -630,7 +544,6 @@ def update_user():
 
         # Calculate new goals
         try:
-            from .calculateIndv import calculate_bmr, calculate_tdee, calculate_macros
             bmr = calculate_bmr(
                 original_data["gender"],
                 age or original_data["age"],
@@ -665,7 +578,6 @@ def update_user():
 
         # Save both old and new goals
         try:
-            from .firebase import store_user_goals
             store_user_goals(user_id, new_goals_data, original_data)
         except Exception as e:
             return jsonify({"error": "Failed to save updated user goals"}), 500

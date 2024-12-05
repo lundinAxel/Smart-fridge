@@ -83,8 +83,3 @@ def main(db):
 
     print("User data saved successfully!")
 
-# Sample database integration
-# For Firebase Firestore
-# from firebase_admin import firestore
-# db = firestore.client()
-# main(db)

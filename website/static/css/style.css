@@ -574,4 +574,10 @@ ul li {
     line-height: 1.6;
     color: #333;
 }
+.message.user {
+    background: #d1e7dd; /* Light green for user messages */
+    text-align: right;
+    margin-left: auto;
+    color: #000; /* Black text for visibility */
+}
 

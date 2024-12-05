@@ -102,3 +102,28 @@ def fetch_daily_data(user_id, date):
         print(f"Error fetching daily data: {e}")
         return None
 
+def fetch_user_data(user_id):
+    """Fetch user's goals and today's totals from the database."""
+    try:
+        # Fetch user goals
+        user_doc_ref = db.collection("users").document(user_id).collection("goals").document("goal")
+        user_doc = user_doc_ref.get()
+        if user_doc.exists:
+            user_goals = user_doc.to_dict()
+        else:
+            raise ValueError("User goals not found.")
+
+        # Fetch today's totals
+        today_date = datetime.now().strftime('%Y-%m-%d')
+        totals_doc_ref = db.collection("users").document(user_id).collection("daily").document(today_date)
+        totals_doc = totals_doc_ref.get()
+        if totals_doc.exists:
+            daily_totals = totals_doc.to_dict()
+        else:
+            daily_totals = {"total_calories": 0, "total_protein": 0, "total_carbohydrates": 0, "total_fat": 0}
+
+        return {"goals": user_goals, "totals": daily_totals}
+
+    except Exception as e:
+        print(f"Error fetching user data: {e}")
+        return {"error": str(e)}
