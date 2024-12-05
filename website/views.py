@@ -82,7 +82,6 @@ def chat():
         current_time = datetime.now().strftime("%H:%M")
 
         # Construct OpenAI prompt
-        # Construct OpenAI prompt
         context = (
             f"User's nutritional data as of {current_time}:\n"
             f"Total Calories: {user_totals['total_calories']} / {user_goals['calorie_goal']} kcal\n"

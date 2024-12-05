@@ -578,6 +578,6 @@ ul li {
     background: #d1e7dd; /* Light green for user messages */
     text-align: right;
     margin-left: auto;
-    color: #000; /* Black text for visibility */
+    color: #000; /* Black text for visibility. */
 }
 
