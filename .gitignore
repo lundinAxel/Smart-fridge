@@ -94,3 +94,7 @@ target/
 
 # exclude data from source control by default
 # /data/
+# Ignore all contents of uploads and output_frames except .gitkeep
+uploads/*
+output_frames/*
+!.gitkeep
