@@ -1,0 +1,7 @@
+*.tex linguist-generated=true
+*.cls linguist-generated=true
+*.sty linguist-generated=true
+*.bib linguist-generated=true
+*.log linguist-generated=true
+*.aux linguist-generated=true
+*.tex linguist-documentation=true
