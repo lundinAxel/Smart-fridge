@@ -1,0 +1,113 @@
+\subsection{Directory Organization}
+
+\begin{enumerate}[label=\alph*.]
+
+    \item Data\\
+          \begin{description}
+              \renewcommand{\makelabel}{\textbf{\small #1}}
+
+              \vspace{-0.2cm}
+              \hrule
+              \vspace{0.2cm}
+
+              \item[/Data/] \hfill \\
+                    - This folder contains dataset files, machine learning models, and helper files for data preprocessing.\\
+                    \footnotesize
+                    calorie_data.json  \\
+                    databaseInfo.py  \\
+                    fruit_classifier_model.h5  \\
+                    label_dict.json  \\
+
+              \item[/Data/images/] \hfill \\ 
+                    - This folder is used for storing image data used during training or prediction processes.\\
+                    \footnotesize
+                    IMG_7654.mov  \\
+                    IMG_7655.mov  \\
+                    IMG_7657.mov  \\
+                    IMG_7659.mov  \\
+                    IMG_7660.mov  \\
+                    banan.png  \\
+                    testfruit.png  \\
+                    testfruit2.png  \\
+                    testfruit3.png  \\
+                    testfruit4.png  \\
+                    testfruit6.jpg  \\
+                    testfruit7.jpg  \\
+                    testfruit8.jpg  \\
+                    testvideo.mp4  \\
+                    .gitkeep  \\
+
+              \item[/Data/notebooks/] \hfill \\ 
+                    - Placeholder for analysis or exploratory data processing notebooks.\\
+                    .gitkeep  \\
+
+              \item[/Data/output_frames/] \hfill \\ 
+                    - This folder contains extracted frames from videos for analysis or training.\\
+                    - (Multiple .jpg files: 0.jpg to 21.jpg and frame_0.jpg to frame_21.jpg)\\
+
+              \item[/Data/uploads/] \hfill \\ 
+                    - This folder is used for temporary storage of user-uploaded files.\\
+                    IMG_7660.mov  \\
+                    testvideo.mp4  \\
+
+          % Close description environment.
+          % Close itemize environment.
+          % Close enumerate environment.
+          % Close document.
+          \end{description}
+
+    \item Website\\
+          \begin{description}
+              \renewcommand{\makelabel}{\textbf{\small #1}}
+
+              \vspace{-0.2cm}
+              \hrule
+              \vspace{0.2cm}
+
+              \item[/website/] \hfill \\ 
+                  - Core backend modules including Firebase integration, routes, and calculations.\\
+                  __init__.py  \\ 
+                  calculateIndv.py  \\ 
+                  firebase.py  \\ 
+                  models.py  \\ 
+                  views.py  \\ 
+
+              \item[/website/templates/] \hfill \\ 
+                  - Frontend templates defining the user interface for various parts of the application.\\
+                  base.html  \\ 
+                  createUser.html  \\ 
+                  login.html  \\ 
+                  modifyUser.html  \\ 
+                  predict.html  \\ 
+                  userReg.html  \\ 
+
+              \item[/website/static/css/] \hfill \\ 
+                  - Contains CSS files for styling the web application.\\
+                  style.css  \\ 
+
+              \item[/website/static/images/] \hfill \\ 
+                  - Contains static images used in the web application.\\
+                  freshLife.png  \\ 
+                  marmor.jpg  \\ 
+                  upload.png  \\ 
+
+              \item[/website/static/js/] \hfill \\ 
+                  - Client-side JavaScript files handling dynamic functionality in the frontend.\\
+                  Chart.js  \\ 
+                  auth.js  \\ 
+                  createUser.js  \\ 
+                  modifyUser.js  \\ 
+                  prediction.js  \\ 
+                  text.js  \\ 
+
+          % Close description environment.
+          % Close itemize environment.
+          % Close enumerate environment.
+          % Close document.
+          \end{description}
+
+    \item Root Directory\\
+          - Root-level files for server configurations and project information.\\
+          .gitignore, InitServer.py, README.md, Software_Project___Smart_Refrigerator-2.pdf, main.py, requirements.txt
+
+\end{enumerate}

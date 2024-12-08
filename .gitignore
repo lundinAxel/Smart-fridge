@@ -98,3 +98,23 @@ target/
 uploads/*
 output_frames/*
 !.gitkeep
+
+# LaTeX build files
+*.aux
+*.log
+*.out
+*.toc
+*.lof
+*.lot
+*.synctex.gz
+*.bbl
+*.blg
+*.fdb_latexmk
+*.fls
+
+# Backup files
+*.bak
+*.tmp
+
+# Ignored folders
+build/
