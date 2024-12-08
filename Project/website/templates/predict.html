@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prediction Result</title>
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation"></script>
+    <body>
+        <img src="/static/images/freshLife.png" class="logo-left" alt="FreshLife Logo">
+        <img src="/static/images/freshLife.png" class="logo-right" alt="FreshLife Logo">
+
+        <div class="container">
+            <div class="phone">
+                <div class="lensmain">
+                    <div class="camera1"></div>
+                    <div class="camera2"></div>
+                </div>
+                <div class="mute"></div>
+                <div class="volup"></div>
+                <div class="voldown"></div>
+                <div class="power"></div>
+                <div class="antena"></div>
+                <div class="antena1"></div>
+                <div class="antena2"></div>
+                <div class="antena3"></div>
+                <div class="antena4"></div>
+                <div class="antena5"></div>
+                <div class="antena6"></div>
+                <div class="antena7"></div>
+                <a href="/modifyUser" class="modify-button" onclick="window.location.href='/modifyUser'">Modify</a>
+                <a href="/login" class="login-button" onclick=logout()>Log out</a>
+                <div class="logo">FreshLife</div>
+            
+                <!-- Add Date Picker -->
+                <form id="dateForm">
+                    <label for="selected_date">Select Date:</label>
+                    <input type="date" class="custom-date-picker" id="selected_date" onclick="fetchDateData(selectDate)" name="selected_date" required>
+                </form>
+            
+                <!-- Nutrition Chart -->
+                <div class="chart-container">
+                    <canvas id="nutritionChart"
+                        data-calorie-goal="{{ calorie_goal }}"
+                        data-carbs-goal="{{ carbs_goal }}"
+                        data-protein-goal="{{ protein_goal }}"
+                        data-fat-goal="{{ fat_goal }}">
+                    </canvas>
+                </div>
+
+                <div class="chart-container1">
+                    <canvas id="weeklyCalorieChart"></canvas>
+                </div>
+
+                <!-- Return Button -->
+                <a href="/base" class="return-button" onclick="window.location.href='/base'">Return</a>
+            </div>
+        </div>
+        <script src="/static/js/auth.js"></script>
+        <script src="/static/js/prediction.js" defer></script>
+        <script src="/static/js/chart.js"></script>
+    </body>
+</html>
