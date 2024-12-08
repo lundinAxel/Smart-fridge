@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                const calorieGoal = data.calorie_goal; // Fetch the calorie goal dynamically
+                const calorieGoal = data.calorie_goal; // Fetch the calorie goal
                 renderChart(data.data, calorieGoal); // Pass the data and calorie goal to renderChart function
                 console.log("Calorie Goal Fetched:", calorieGoal)
             } else {
