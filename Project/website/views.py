@@ -20,7 +20,7 @@ fat_goal = 50
 
 # Use the API key for ChatGpt Ai
 
-openai.api_key = "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"
+#openai.api_key =
 @views.route('/chat', methods=['GET'])
 def chat_page():
     return render_template("chat.html")
